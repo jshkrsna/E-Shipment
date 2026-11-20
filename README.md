@@ -53,3 +53,17 @@ Resi contoh: `JT110461625999` (milik akun Pengguna demo, kasus KS-0412) dan `JT1
 Ganti `ADMIN_PASSWORD` dari nilai default; petunjuk akun demo di halaman Masuk otomatis tersembunyi bila kata sandi admin diganti.
 
 Batasan kuota gratis dan alternatifnya (Neon, Cloudflare) dijelaskan di bagian 10 master plan.
+
+### Setelah mengubah Environment Variables atau Function Region
+
+Perubahan env dan region baru berlaku pada **deployment Production berikutnya**:
+
+- Vercel → **Deployments** → deployment teratas berlabel **Production** → **⋯** → **Redeploy**, atau
+- push commit apa pun ke `main`.
+
+Pastikan setiap variabel tercentang untuk environment **Production**, bukan hanya Preview/Development. Lalu cek:
+
+```bash
+curl https://<domain>/api/health          # storage harus "supabase", storageWarning null
+curl -sI https://<domain>/ | grep -i x-vercel-id   # region fungsi, mis. ...::bom1::...
+```
