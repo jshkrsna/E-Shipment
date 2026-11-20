@@ -76,7 +76,10 @@ async function supabaseBucket() {
   const url = process.env.SUPABASE_URL
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY
   if (!url || !key) throw new Error('SUPABASE_URL dan SUPABASE_SERVICE_ROLE_KEY wajib diisi untuk STORAGE_DRIVER=supabase')
-  const client = new StorageClient(`${url.replace(/\/$/, '')}/storage/v1`, { apikey: key, Authorization: `Bearer ${key}` })
+  // Kunci baru Supabase (sb_secret_…) bukan JWT: cukup dikirim di header apikey.
+  // Kunci lama (service_role, JWT) dikirim di apikey + Authorization.
+  const headers: Record<string, string> = key.startsWith('sb_') ? { apikey: key } : { apikey: key, Authorization: `Bearer ${key}` }
+  const client = new StorageClient(`${url.replace(/\/$/, '')}/storage/v1`, headers)
   return client.from(process.env.SUPABASE_BUCKET || 'evidence')
 }
 

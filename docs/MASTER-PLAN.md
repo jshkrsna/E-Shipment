@@ -69,7 +69,7 @@ Prinsip lapisan:
 - **Halaman (UI)** hanya merender dan memanggil API / server action. Tidak ada SQL di komponen.
 - **Route handler (`app/api`)** memvalidasi input dengan Zod, memeriksa sesi dan peran, lalu memanggil service.
 - **Service (`src/server/services`)** berisi aturan bisnis dan selalu menulis log audit untuk perubahan kasus.
-- **DB (`src/server/db`)** berisi skema Drizzle dan koneksi. Driver dipilih otomatis: PGlite bila `DATABASE_URL` kosong, `postgres` bila diisi.
+- **DB (`src/server/db`)** berisi skema Drizzle dan koneksi. Driver dipilih otomatis: PGlite bila `DATABASE_URL` kosong, node-postgres (`pg`) bila diisi.
 - **Storage (`src/server/storage`)** memakai adapter: `local` (pengembangan) atau `supabase` (produksi).
 
 ## 4. Tech stack
@@ -80,6 +80,7 @@ Prinsip lapisan:
 | Styling | Tailwind CSS 4, token dari desain | Responsif dengan utilitas `md:`/`lg:`, token sama dengan Figma |
 | Font | Plus Jakarta Sans, IBM Plex Mono (`next/font`) | Sesuai desain, di-host sendiri tanpa permintaan ke Google saat runtime |
 | ORM | Drizzle ORM + drizzle-kit | Ringan, SQL jelas, migrasi berbasis file, cocok untuk serverless |
+| Driver DB produksi | node-postgres (`pg` Pool) | Antrean query, tanpa *pipelining*. postgres.js menggantung di pooler transaksi Supabase saat banyak query paralel |
 | DB lokal | PGlite (PostgreSQL WASM) | `npm run dev` langsung jalan tanpa instal Postgres/Docker |
 | DB produksi | PostgreSQL (Supabase Free atau Neon Free) | Gratis, skema identik dengan lokal |
 | Auth | Sesi milik sendiri: bcrypt + token acak di cookie httpOnly, disimpan di tabel `sessions` | Tanpa layanan pihak ketiga, bisa dicabut, mendukung RBAC |
@@ -324,9 +325,11 @@ Tidak perlu kartu kredit untuk ketiga layanan utama.
 
 1. Buat proyek Supabase → salin *connection string* (mode pooler, port 6543) dan buat bucket privat `evidence`.
 2. Isi variabel lingkungan di Vercel (lihat `.env.example`): `DATABASE_URL`, `SESSION_SECRET`, `STORAGE_DRIVER=supabase`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_BUCKET=evidence`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, opsional `NEXT_PUBLIC_GOOGLE_CLIENT_ID`, `NEXT_PUBLIC_GOOGLE_API_KEY`, `NEXT_PUBLIC_GOOGLE_APP_ID`.
-3. Jalankan migrasi dan seed sekali dari komputer: `DATABASE_URL=... npm run db:migrate && npm run db:seed`.
-4. Hubungkan repo GitHub ke Vercel → deploy otomatis setiap push ke `main`.
-5. Aktifkan workflow `keep-alive` dengan secret `SITE_URL`.
+3. Jalankan migrasi dan seed sekali dari komputer: isi `DATABASE_URL`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` di `.env.production.local`, lalu `npm run db:migrate:prod && npm run db:seed:prod`.
+4. Atur *Function Region* Vercel sama dengan region Supabase (mis. Mumbai `bom1` untuk `ap-south-1`) agar query tidak lintas benua.
+5. Hubungkan repo GitHub ke Vercel → deploy otomatis setiap push ke `main`.
+6. Aktifkan workflow `keep-alive` dengan secret `SITE_URL`.
+7. Cek `https://<domain>/api/health`: harus `ok: true`, `db: postgres`, `seeded: true`, tanpa `storageWarning`.
 
 ## 11. Fase implementasi
 
