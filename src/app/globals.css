@@ -1,0 +1,168 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-navy: #14305b;
+  --color-navy-d: #0d2142;
+  --color-navy-s: #24467d;
+  --color-blue: #1b4b8f;
+  --color-bg: #f4f6f9;
+  --color-card: #ffffff;
+  --color-line: #d8dfe9;
+  --color-line-d: #8795ad;
+  --color-txt: #16202e;
+  --color-mut: #52607a;
+  --color-ok: #17663a;
+  --color-ok-bg: #e3f3e9;
+  --color-wn: #80500a;
+  --color-wn-bg: #fff0d1;
+  --color-er: #b3261e;
+  --color-er-bg: #fde9e7;
+  --color-nu: #434f63;
+  --color-nu-bg: #eaeef4;
+  --color-nb: #1b4b8f;
+  --color-nb-bg: #e4edf9;
+  --radius-r: 8px;
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, monospace;
+  --breakpoint-xs: 400px;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-bg font-sans text-[14px] leading-[1.5] text-txt antialiased;
+  }
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+  :focus-visible {
+    outline: 3px solid #f2b705;
+    outline-offset: 2px;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+}
+
+@layer components {
+  .wx {
+    @apply mx-auto w-full max-w-[1280px] px-4 md:px-8;
+  }
+  .card {
+    @apply rounded-r border border-line bg-card p-4;
+  }
+  .up {
+    @apply text-[11px] font-bold tracking-[0.08em] text-mut uppercase;
+  }
+  .lbl {
+    @apply mb-1.5 block text-[13px] font-semibold text-txt;
+  }
+  .hint {
+    @apply text-[12px] text-mut;
+  }
+  .note {
+    @apply rounded-r border border-dashed border-line-d bg-white/60 px-3 py-2 text-[12px] text-mut;
+  }
+  .lnk {
+    @apply font-semibold text-blue underline underline-offset-2 hover:text-navy;
+  }
+  .in {
+    @apply min-h-11 w-full rounded-r border border-line-d bg-white px-3 py-2 text-[14px] text-txt placeholder:text-[#8795AD] focus:border-navy focus:outline-none focus:ring-2 focus:ring-navy/20 disabled:bg-nu-bg;
+  }
+  .proto {
+    @apply inline-flex items-center rounded-[6px] border border-dashed border-navy px-2 py-0.5 text-[11px] font-bold whitespace-nowrap text-navy;
+  }
+  .hr {
+    @apply border-0 border-t border-line;
+  }
+  .kv {
+    @apply grid grid-cols-[minmax(96px,auto)_1fr] gap-x-4 gap-y-1.5 text-[13px];
+  }
+  .kv > :nth-child(odd) {
+    @apply text-mut;
+  }
+  .kv > :nth-child(even) {
+    @apply font-medium;
+  }
+  .stamp {
+    @apply flex items-start gap-1.5 text-[12px] text-ok;
+  }
+  .ph {
+    @apply flex items-center justify-center rounded-r border border-line text-center text-[12px] font-semibold text-mut;
+    background: repeating-linear-gradient(135deg, #e8ecf2 0 10px, #f1f4f8 10px 20px);
+  }
+  .diff {
+    @apply rounded px-1.5 font-bold text-er bg-er-bg;
+  }
+  .tbl {
+    @apply w-full border-collapse text-left text-[13px];
+  }
+  .tbl th {
+    @apply border-b border-line bg-[#F7F9FC] px-4 py-2.5 text-[11px] font-bold tracking-[0.06em] text-mut uppercase;
+  }
+  .tbl td {
+    @apply border-b border-line px-4 py-3 align-middle;
+  }
+  .tbl tr:last-child td {
+    @apply border-b-0;
+  }
+}
+
+/* ── Rich editor (Quill) ───────────────────────────────── */
+.rte .ql-toolbar.ql-snow {
+  border: 0;
+  border-bottom: 1px solid var(--color-line);
+  background: #f7f9fc;
+  border-radius: 8px 8px 0 0;
+  padding: 6px 8px;
+  font-family: inherit;
+}
+.rte .ql-container.ql-snow {
+  border: 0;
+  font-family: inherit;
+  font-size: 14px;
+}
+.rte .ql-editor {
+  min-height: 140px;
+  padding: 12px 14px;
+  line-height: 1.55;
+}
+.rte .ql-editor.ql-blank::before {
+  color: #8795ad;
+  font-style: normal;
+  left: 14px;
+}
+.rte .ql-snow .ql-stroke {
+  stroke: var(--color-nu);
+}
+.rte .ql-snow .ql-fill {
+  fill: var(--color-nu);
+}
+.rte .ql-snow button:hover .ql-stroke,
+.rte .ql-snow button.ql-active .ql-stroke {
+  stroke: var(--color-navy);
+}
+.rte .ql-snow button.ql-active {
+  background: var(--color-nb-bg);
+  border-radius: 4px;
+}
+.prose-story p {
+  margin: 0 0 6px;
+}
+.prose-story ol,
+.prose-story ul {
+  margin: 0 0 6px;
+  padding-left: 20px;
+}
+.prose-story ul,
+.prose-story ol li[data-list='bullet'] {
+  list-style: disc;
+}
+.prose-story ol {
+  list-style: decimal;
+}
+.prose-story ol li[data-list='bullet'] {
+  list-style-type: disc;
+}

@@ -1,0 +1,13 @@
+# Mencegah proyek Supabase Free dijeda karena tidak aktif 7 hari.
+# Atur secret repository SITE_URL, mis. https://e-shipmennt.vercel.app
+name: keep-alive
+on:
+  schedule:
+    - cron: '0 2 */3 * *'
+  workflow_dispatch:
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping health endpoint (menyentuh database)
+        run: curl -fsS --max-time 60 "${{ secrets.SITE_URL }}/api/health"
