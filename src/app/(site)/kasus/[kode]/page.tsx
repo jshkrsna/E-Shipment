@@ -161,7 +161,7 @@ export default async function KasusPage({ params, searchParams }: { params: Prom
             escalated={!!c.escalatedAt}
             closed={closed}
           />
-          <p className="note">Waktu terakhir diperbarui {fmtTime(new Date())} WIB. Batas waktu tahap adalah nilai contoh.</p>
+          <p className="note">Waktu terakhir diperbarui {fmtTime(new Date())} WIB.</p>
         </aside>
       </div>
     </div>

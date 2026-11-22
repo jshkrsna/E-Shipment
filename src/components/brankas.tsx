@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { api, putWithProgress, videoDuration } from '@/lib/client'
+import { api, fileMime, putWithProgress, videoDuration } from '@/lib/client'
 import { duration, fileSize, fmtDateTime } from '@/lib/format'
 import { Icon } from './icon'
 import { Modal } from './modal'
@@ -31,7 +31,7 @@ function Thumb({ f, className, controls = false }: { f: VaultFile; className?: s
       <div className={cx('ph flex-col gap-1', className)}>
         <span className="rounded-full bg-white px-2 py-0.5 text-[12px] font-bold text-nu">{kindLabel(f)}</span>
         <span className="px-2 text-[12px]">{f.fileName}</span>
-        <span className="text-[11px] font-normal">Contoh data, tanpa berkas</span>
+        <span className="text-[11px] font-normal">Berkas tidak tersedia</span>
       </div>
     )
   }
@@ -111,7 +111,7 @@ export function Brankas({ awb, files, canEdit }: { awb: string; files: VaultFile
       const file = arr[i]
       const update = (u: Partial<Upload>) => setUploads((prev) => prev.map((p, j) => (j === i ? { ...p, ...u } : p)))
       try {
-        const meta = { awb, fileName: file.name, mime: file.type, size: file.size }
+        const meta = { awb, fileName: file.name, mime: fileMime(file), size: file.size }
         const target = await api<{ key: string; uploadUrl: string; headers: Record<string, string> }>('/api/evidence/upload-url', { method: 'POST', json: meta })
         await putWithProgress(target.uploadUrl, file, target.headers, (pct) => update({ pct }))
         await api('/api/evidence', { method: 'POST', json: { ...meta, key: target.key, durationSec: await videoDuration(file) } })

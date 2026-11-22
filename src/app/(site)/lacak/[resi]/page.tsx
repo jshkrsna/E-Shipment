@@ -11,7 +11,6 @@ export default async function LinimasaPage({ params }: { params: Promise<{ resi:
     <>
       <h2 className="sr-only">Linimasa</h2>
       <Timeline t={t} recipientLabel={t.shipment.recipientMasked} />
-      <p className="note">Nomor resi sesuai laporan. Nama hub, jam, dan petugas adalah data ilustrasi.</p>
     </>
   )
 }

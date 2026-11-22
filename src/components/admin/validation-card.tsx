@@ -164,7 +164,7 @@ export function ValidationCard({
                   <span>Total charge</span>
                   <b className="font-mono text-[22px]" aria-live="polite">{rupiah(charge ?? 0)}</b>
                 </div>
-                <p className="text-[12px] text-mut">Nilai barang {rupiah(itemValue)}. Nilai ketentuan adalah contoh. Sesuaikan dengan kebijakan resmi perusahaan.</p>
+                <p className="text-[12px] text-mut">Nilai barang {rupiah(itemValue)}. Persentase mengikuti ketentuan charge yang berlaku.</p>
               </div>
             )}
           </fieldset>

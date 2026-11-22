@@ -3,6 +3,13 @@ import path from 'node:path'
 import fs from 'node:fs'
 import fsp from 'node:fs/promises'
 import { createHash, createHmac, timingSafeEqual } from 'node:crypto'
+import { HttpError } from '../http'
+
+/** Error dari Supabase Storage → 502 dengan pesan yang bisa dibaca, bukan 500 kosong. */
+function storageError(action: string, message?: string) {
+  console.error(`[storage] ${action}:`, message)
+  return new HttpError(502, `Layanan penyimpanan menolak ${action}${message ? ` (${message})` : ''}. Coba lagi atau hubungi admin.`)
+}
 
 export interface StorageDriver {
   name: 'local' | 'supabase'
@@ -75,7 +82,10 @@ async function supabaseBucket() {
   const { StorageClient } = await import('@supabase/storage-js')
   const url = process.env.SUPABASE_URL
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (!url || !key) throw new Error('SUPABASE_URL dan SUPABASE_SERVICE_ROLE_KEY wajib diisi untuk STORAGE_DRIVER=supabase')
+  if (!url || !key) {
+    console.error('[storage] SUPABASE_URL dan SUPABASE_SERVICE_ROLE_KEY wajib diisi untuk STORAGE_DRIVER=supabase')
+    throw new HttpError(503, 'Penyimpanan berkas bukti belum dikonfigurasi di server. Hubungi admin.')
+  }
   // Kunci baru Supabase (sb_secret_…) bukan JWT: cukup dikirim di header apikey.
   // Kunci lama (service_role, JWT) dikirim di apikey + Authorization.
   const headers: Record<string, string> = key.startsWith('sb_') ? { apikey: key } : { apikey: key, Authorization: `Bearer ${key}` }
@@ -88,13 +98,13 @@ const supabaseDriver: StorageDriver = {
   async createUpload(key, mime) {
     const bucket = await supabaseBucket()
     const { data, error } = await bucket.createSignedUploadUrl(key)
-    if (error || !data) throw new Error(error?.message || 'Gagal membuat URL unggah')
+    if (error || !data) throw storageError('pembuatan URL unggah', error?.message)
     return { url: data.signedUrl, headers: { 'content-type': mime, 'x-upsert': 'false' } }
   },
   async put(key, data, mime) {
     const bucket = await supabaseBucket()
     const { error } = await bucket.upload(key, data, { contentType: mime, upsert: false })
-    if (error) throw new Error(error.message)
+    if (error) throw storageError('penyimpanan berkas', error.message)
   },
   async inspect(key) {
     const bucket = await supabaseBucket()
@@ -110,13 +120,33 @@ const supabaseDriver: StorageDriver = {
   async locate(key) {
     const bucket = await supabaseBucket()
     const { data, error } = await bucket.createSignedUrl(key, 300)
-    if (error || !data) throw new Error(error?.message || 'Gagal membuat URL berkas')
+    if (error || !data) throw storageError('pembukaan berkas', error?.message)
     return { type: 'url', url: data.signedUrl }
   },
 }
 
+export const supabaseConfigured = () => !!(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY)
+
+/**
+ * Pilih driver storage.
+ * - STORAGE_DRIVER=supabase → Supabase.
+ * - Di Vercel, filesystem hanya-baca sehingga driver lokal tidak mungkin bekerja: pakai Supabase
+ *   bila kredensialnya ada walau STORAGE_DRIVER lupa diisi, dan beri error jelas (bukan 500) bila tidak ada.
+ * - Selain itu → lokal (.data/uploads).
+ */
+export function storageDriverName(): 'local' | 'supabase' | 'unconfigured' {
+  const wanted = process.env.STORAGE_DRIVER
+  if (wanted === 'supabase') return 'supabase'
+  if (process.env.VERCEL) return supabaseConfigured() ? 'supabase' : 'unconfigured'
+  return 'local'
+}
+
 export function storage(): StorageDriver {
-  return process.env.STORAGE_DRIVER === 'supabase' ? supabaseDriver : localDriver
+  const name = storageDriverName()
+  if (name === 'supabase') return supabaseDriver
+  if (name === 'local') return localDriver
+  console.error('[storage] Vercel tanpa SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY: unggah bukti tidak dapat disimpan.')
+  throw new HttpError(503, 'Penyimpanan berkas bukti belum dikonfigurasi di server. Hubungi admin.')
 }
 
 export const MAX_UPLOAD_BYTES = 50 * 1024 * 1024

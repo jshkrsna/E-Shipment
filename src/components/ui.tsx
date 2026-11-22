@@ -84,6 +84,20 @@ export function Placeholder({ children, className }: { children: ReactNode; clas
   return <div className={cx('ph', className)}>{children}</div>
 }
 
+/** Foto bukti dari /api/evidence/[id]/file; tanpa src tampil keadaan kosong yang jujur. */
+export function EvidencePhoto({ src, alt, className, emptyText = 'Foto belum dilampirkan kurir' }: { src?: string | null; alt: string; className?: string; emptyText?: string }) {
+  if (!src) {
+    return (
+      <div className={cx('ph flex-col gap-1 px-2 text-center font-normal', className)}>
+        <Icon name="image" size={22} />
+        <span className="text-[12px]">{emptyText}</span>
+      </div>
+    )
+  }
+  // eslint-disable-next-line @next/next/no-img-element
+  return <a href={src} target="_blank" rel="noopener noreferrer" className={cx('block overflow-hidden rounded-r bg-nu-bg', className)}><img src={src} alt={alt} className="size-full object-cover" loading="lazy" /></a>
+}
+
 export function ProgressBar({ value, tone = 'navy', label }: { value: number; tone?: 'navy' | 'ok' | 'wn' | 'er'; label?: string }) {
   const v = Math.max(0, Math.min(100, value))
   const bg = { navy: 'bg-navy', ok: 'bg-ok', wn: 'bg-wn', er: 'bg-er' }[tone]

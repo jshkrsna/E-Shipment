@@ -27,13 +27,12 @@ export default async function RutePage({ params }: { params: Promise<{ resi: str
           </span>
         </div>
         <RouteSchematic checks={t.checks} />
-        <p className="hint">Peta skematis, bukan skala. Hub dan jalur adalah ilustrasi.</p>
+        <p className="hint">Peta skematis, bukan skala.</p>
       </Card>
       <h2 className="text-[16px] font-bold">Pemeriksaan identitas di setiap hub</h2>
       <div className="grid gap-3 xl:grid-cols-2">
         {t.checks.map((c) => <IdentityCard key={c.id} c={c} reference={t.reference} />)}
       </div>
-      <p className="note">Nama hub dan nilai ukur adalah data ilustrasi.</p>
     </>
   )
 }

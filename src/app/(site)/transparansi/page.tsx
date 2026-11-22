@@ -66,7 +66,7 @@ export default async function TransparansiPage({ searchParams }: { searchParams:
         {!rows.length && <li className="card text-center text-mut">Belum ada insiden untuk filter ini.</li>}
       </ul>
 
-      <p className="note">Entri adalah contoh ilustrasi untuk prototipe konsep. Setiap insiden dianonimkan sebelum dipublikasikan.</p>
+      <p className="note">Setiap insiden dianonimkan sebelum dipublikasikan.</p>
     </div>
   )
 }

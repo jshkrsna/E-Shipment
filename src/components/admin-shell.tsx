@@ -51,9 +51,10 @@ export function AdminShell({ name, baru, children }: { name: string; baru: numbe
 
   const footer = (
     <div className="mt-auto flex flex-col gap-2 border-t border-white/10 pt-3">
+      <Link href="/admin/akun" aria-current={pathname === '/admin/akun' ? 'page' : undefined} className={cx('flex min-h-10 items-center gap-3 rounded-r px-3 text-[13px] font-semibold', pathname === '/admin/akun' ? 'bg-navy-s text-white' : 'text-[#C9D6EC] hover:bg-white/10')}><Icon name="user" size={16} />Profil saya</Link>
       <Link href="/" className="flex min-h-10 items-center gap-3 rounded-r px-3 text-[13px] font-semibold text-[#C9D6EC] hover:bg-white/10"><Icon name="external" size={16} />Lihat situs publik</Link>
       <button type="button" onClick={logout} className="flex min-h-10 items-center gap-3 rounded-r px-3 text-left text-[13px] font-semibold text-[#FFB4AB] hover:bg-white/10"><Icon name="logout" size={16} />Keluar</button>
-      <span className="px-3 text-[12px] text-[#9FB3D6]">{name} · Peran: Admin · Prototipe konsep</span>
+      <span className="px-3 text-[12px] text-[#9FB3D6]">{name} · Peran: Admin</span>
     </div>
   )
 

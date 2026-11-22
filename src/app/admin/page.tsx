@@ -30,7 +30,6 @@ export default async function Dasbor({ searchParams }: { searchParams: Promise<{
           <h1 className="text-[22px] font-extrabold md:text-[24px]">Dasbor dan antrean anomali</h1>
           <span className="text-mut">Data yang sama dengan yang dilihat konsumen · diperbarui {fmtDateTime(new Date())}</span>
         </div>
-        <span className="proto">Prototipe konsep</span>
       </div>
 
       <section className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5" aria-label="Ringkasan">
@@ -98,7 +97,7 @@ export default async function Dasbor({ searchParams }: { searchParams: Promise<{
           ))}
         </ul>
         {d.queue.length === 0 && <p className="px-4 text-center text-mut">Tidak ada anomali terbuka.</p>}
-        <p className="note mx-4 mb-4">Anomali dibuat otomatis dari pemindaian hub (lihat Pindai checkpoint). Resi pertama sesuai laporan; lainnya data ilustrasi.</p>
+        <p className="note mx-4 mb-4">Anomali dibuat otomatis dari pemindaian hub (lihat Pindai checkpoint).</p>
       </section>
     </div>
   )

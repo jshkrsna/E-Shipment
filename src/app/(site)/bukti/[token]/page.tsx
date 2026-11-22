@@ -1,4 +1,4 @@
-import { Banner, Card, Chip, EmptyState, KV, Placeholder, Stamp } from '@/components/ui'
+import { Banner, Card, Chip, EmptyState, EvidencePhoto, KV, Stamp } from '@/components/ui'
 import { Icon } from '@/components/icon'
 import { getSharedView } from '@/server/services/cases'
 import { dims, fmtDateTime, fmtShort, fmtStamp, kg, maskName, maskPhone } from '@/lib/format'
@@ -45,7 +45,7 @@ export default async function BuktiBersama({ params }: { params: Promise<{ token
         {pickup && (
           <Card className="flex flex-col gap-3">
             <div className="flex items-center justify-between gap-2"><span className="font-semibold">Bukti pengambilan</span><Chip tone="nb">Dicatat kurir</Chip></div>
-            <Placeholder className="h-28">Foto paket saat diambil</Placeholder>
+            <EvidencePhoto src={pickup.storageKey ? `/api/evidence/${pickup.id}/file?share=${token}` : null} alt="Foto paket saat diambil kurir" className="h-28" />
             <KV rows={[['Berat', pm.berat ?? kg(ref?.weightKg)], ['Segel', <span key="s" className="font-mono">{pm.segel ?? ref?.sealNo}</span>]]} />
             <Stamp>Cap integritas {fmtStamp(pickup.createdAt)}</Stamp>
           </Card>
@@ -80,7 +80,7 @@ export default async function BuktiBersama({ params }: { params: Promise<{ token
                     <img key={e.id} src={`/api/evidence/${e.id}/file?share=${token}`} alt={e.fileName} className="aspect-[4/3] w-full rounded-r object-cover" />
                   )
                 ) : (
-                  <Placeholder key={e.id} className="h-20">{e.fileName}</Placeholder>
+                  <EvidencePhoto key={e.id} alt={e.fileName} emptyText={`${e.fileName} · berkas tidak tersedia`} className="h-20" />
                 ),
               )}
             </div>
@@ -98,7 +98,6 @@ export default async function BuktiBersama({ params }: { params: Promise<{ token
           ))}
         </ul>
       </section>
-      <p className="note">Data pengiriman pada contoh ini adalah ilustrasi.</p>
     </div>
   )
 }

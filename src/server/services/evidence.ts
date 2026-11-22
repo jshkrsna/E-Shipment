@@ -118,6 +118,16 @@ export async function authorizeEvidenceFile(id: number, viewer: SessionUser | nu
       .where(and(eq(s.shareLinks.token, shareToken), isNull(s.shareLinks.revokedAt), gt(s.shareLinks.expiresAt, new Date()), eq(s.caseEvidence.evidenceId, id)))
       .limit(1)
     if (link.length) return row
+    // Bukti kurir (pengambilan/serah terima) dari paket yang sama dengan kasus yang dibagikan.
+    if (row.ownerType === 'courier') {
+      const courierLink = await db
+        .select({ id: s.shareLinks.id })
+        .from(s.shareLinks)
+        .innerJoin(s.cases, eq(s.cases.id, s.shareLinks.caseId))
+        .where(and(eq(s.shareLinks.token, shareToken), isNull(s.shareLinks.revokedAt), gt(s.shareLinks.expiresAt, new Date()), eq(s.cases.shipmentId, row.shipmentId)))
+        .limit(1)
+      if (courierLink.length) return row
+    }
   }
   throw forbidden('Anda tidak memiliki akses ke berkas ini.')
 }

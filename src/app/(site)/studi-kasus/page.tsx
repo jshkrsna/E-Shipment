@@ -1,4 +1,4 @@
-import { Banner, Card, Chip, LinkButton } from '@/components/ui'
+import { Banner, Card, Chip } from '@/components/ui'
 
 export const metadata = { title: 'Studi kasus: paket tertukar' }
 
@@ -24,7 +24,7 @@ export default function StudiKasusPage() {
     <>
       <header className="border-b border-line bg-white">
         <div className="wx flex max-w-[1280px] flex-col gap-4 py-10 lg:py-12">
-          <div className="flex flex-wrap items-center gap-2"><span className="up">Studi kasus · sesuai laporan</span><span className="proto">Prototipe konsep</span></div>
+          <div className="flex flex-wrap items-center gap-2"><span className="up">Studi kasus · sesuai laporan</span></div>
           <h1 className="max-w-[760px] text-[26px] leading-tight font-extrabold md:text-[32px]">Saat data pelacakan tertutup, konsumen mudah disalahkan sementara penyebab sebenarnya tersembunyi.</h1>
           <p className="max-w-[760px] text-[16px] text-mut">Kasus 2: paket tertukar di jalur pengiriman, penerima lebih dulu dituduh melakukan kecurangan. Halaman ini menunjukkan celahnya dan cara E-Shipmennt menutupnya.</p>
         </div>
@@ -43,7 +43,7 @@ export default function StudiKasusPage() {
         </div>
         <aside className="flex flex-col gap-3 lg:pt-12">
           <Banner tone="wn" icon="alert"><div className="flex flex-col gap-1"><span className="font-semibold">Belum diverifikasi secara independen</span><p className="text-[12px]">Unggahan sumber tidak dapat dibuka dan belum ada pemberitaan yang cocok. Semua rincian berlabel “sesuai laporan”.</p></div></Banner>
-          <Banner tone="nu" icon="info"><p className="text-[12px]">Identitas konsumen dalam laporan tidak ditampilkan. Fitur E-Shipmennt adalah usulan, bukan klaim tentang cara kerja sistem JNE.</p></Banner>
+          <Banner tone="nu" icon="info"><p className="text-[12px]">Identitas konsumen dalam laporan tidak ditampilkan. E-Shipmennt tidak berafiliasi dengan JNE.</p></Banner>
         </aside>
       </section>
 
@@ -72,14 +72,13 @@ export default function StudiKasusPage() {
             </ul>
           </Card>
           <Card className="flex flex-col gap-3 border-ok">
-            <div className="flex flex-wrap items-center justify-between gap-2"><span className="font-semibold">Dengan E-Shipmennt (usulan)</span><Chip tone="ok" icon="check">Bukti terlihat</Chip></div>
+            <div className="flex flex-wrap items-center justify-between gap-2"><span className="font-semibold">Dengan E-Shipmennt</span><Chip tone="ok" icon="check">Bukti terlihat</Chip></div>
             <ul className="flex list-disc flex-col gap-2 pl-5">
               <li>Status terverifikasi menyebut sumbernya, mis. “OTP pukul 14:02”.</li><li>Ketidakcocokan pertama ditandai di linimasa dan peta.</li><li>Spanduk netral selama investigasi berjalan.</li><li>Ringkasan penyelesaian dan pengungkapan insiden publik.</li>
             </ul>
-            <LinkButton href="/lacak/JT110461625999" variant="secondary" className="self-start">Lihat contoh pelacakan</LinkButton>
           </Card>
         </div>
-        <p className="note mt-6">Sumber: Media Konsumen (@MediaKonsumenID), unggahan di X (belum diverifikasi independen). Data demo ilustrasi.</p>
+        <p className="note mt-6">Sumber: Media Konsumen (@MediaKonsumenID), unggahan di X (belum diverifikasi independen).</p>
       </section>
     </>
   )

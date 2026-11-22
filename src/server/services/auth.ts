@@ -3,7 +3,7 @@ import { cache } from 'react'
 import { cookies } from 'next/headers'
 import { createHash, randomBytes } from 'node:crypto'
 import bcrypt from 'bcryptjs'
-import { and, eq, gt } from 'drizzle-orm'
+import { and, eq, gt, ne } from 'drizzle-orm'
 import { z } from 'zod'
 import { getDb, schema as s } from '../db/client'
 import { badRequest, conflict, forbidden, unauthorized } from '../http'
@@ -84,6 +84,48 @@ async function startSession(userId: number) {
 
 function toSessionUser(u: typeof s.users.$inferSelect): SessionUser {
   return { id: u.id, name: u.name, email: u.email, phone: u.phone, role: u.role }
+}
+
+// ── Edit profil (akun sendiri) ──────────────────────
+const profileSchema = registerSchema.pick({ name: true, email: true }).extend({
+  phone: z.string().trim(),
+})
+
+/** Ubah nama, email, dan nomor akun sendiri. Nomor wajib untuk Pengguna, opsional untuk Admin. */
+export async function updateProfile(user: SessionUser, input: unknown) {
+  const data = profileSchema
+    .superRefine((v, ctx) => {
+      if (!v.phone && user.role === 'ADMIN') return
+      if (!registerSchema.shape.phone.safeParse(v.phone).success) {
+        ctx.addIssue({ code: 'custom', path: ['phone'], message: v.phone ? 'Nomor WhatsApp tidak valid, contoh 081234567890.' : 'Nomor WhatsApp wajib diisi.' })
+      }
+    })
+    .parse(input)
+  const db = await getDb()
+  const taken = await db.query.users.findFirst({ where: and(eq(s.users.email, data.email), ne(s.users.id, user.id)) })
+  if (taken) throw conflict('Email sudah dipakai akun lain.')
+  const [row] = await db
+    .update(s.users)
+    .set({ name: data.name, email: data.email, phone: data.phone ? normalizePhone(data.phone) : null })
+    .where(eq(s.users.id, user.id))
+    .returning()
+  return toSessionUser(row)
+}
+
+const passwordSchema = z
+  .object({ password: registerSchema.shape.password, confirm: z.string() })
+  .refine((v) => v.password === v.confirm, { path: ['confirm'], message: 'Konfirmasi kata sandi tidak cocok.' })
+
+/** Ganti kata sandi akun sendiri, lalu keluarkan semua sesi lain (sesi perangkat ini tetap). */
+export async function changePassword(user: SessionUser, input: unknown) {
+  const { password } = passwordSchema.parse(input)
+  const db = await getDb()
+  const token = (await cookies()).get(SESSION_COOKIE)?.value
+  await db.transaction(async (tx) => {
+    await tx.update(s.users).set({ passwordHash: await bcrypt.hash(password, 10) }).where(eq(s.users.id, user.id))
+    await tx.delete(s.sessions).where(token ? and(eq(s.sessions.userId, user.id), ne(s.sessions.id, sha256(token))) : eq(s.sessions.userId, user.id))
+  })
+  return { ok: true as const }
 }
 
 /** Pengguna aktif untuk request ini (null bila belum masuk). Di-cache per request. */

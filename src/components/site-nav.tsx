@@ -52,7 +52,10 @@ function AccountMenu({ user }: { user: NonNullable<NavUser> }) {
           {user.role === 'ADMIN' ? (
             <Link href="/admin" className="flex min-h-10 items-center gap-2 rounded-[6px] px-3 font-semibold hover:bg-nu-bg"><Icon name="grid" size={16} />Panel admin</Link>
           ) : (
-            <Link href="/kasus" className="flex min-h-10 items-center gap-2 rounded-[6px] px-3 font-semibold hover:bg-nu-bg"><Icon name="doc" size={16} />Kasus saya</Link>
+            <>
+              <Link href="/kasus" className="flex min-h-10 items-center gap-2 rounded-[6px] px-3 font-semibold hover:bg-nu-bg"><Icon name="doc" size={16} />Kasus saya</Link>
+              <Link href="/akun" className="flex min-h-10 items-center gap-2 rounded-[6px] px-3 font-semibold hover:bg-nu-bg"><Icon name="user" size={16} />Profil saya</Link>
+            </>
           )}
           <button type="button" onClick={() => doLogout(router)} className="flex min-h-10 w-full items-center gap-2 rounded-[6px] px-3 text-left font-semibold text-er hover:bg-er-bg">
             <Icon name="logout" size={16} />Keluar
@@ -93,7 +96,6 @@ export function SiteNav({ user }: { user: NavUser }) {
               </Link>
             ))}
           </div>
-          <span className="proto">Prototipe konsep</span>
           {user?.role !== 'ADMIN' && (
             <Link href="/lapor" className={btnClass('primary')}>
               <Icon name="flag" size={18} />Laporkan masalah
@@ -107,7 +109,6 @@ export function SiteNav({ user }: { user: NavUser }) {
       <header className="sticky top-0 z-40 flex min-h-14 items-center gap-3 border-b border-line bg-white px-4 lg:hidden">
         <Link href="/" aria-label="E-Shipmennt, ke beranda"><Logo /></Link>
         <span className="grow" />
-        <span className="proto hidden xs:inline-flex">Prototipe konsep</span>
         <button type="button" onClick={() => setOpen(true)} aria-label="Buka menu" aria-expanded={open} className="grid size-11 place-items-center rounded-r text-navy hover:bg-nu-bg">
           <Icon name="menu" size={24} />
         </button>
@@ -135,7 +136,10 @@ export function SiteNav({ user }: { user: NavUser }) {
                 </Link>
               ))}
               {user?.role === 'PENGGUNA' && (
-                <Link href="/kasus" className={cx('flex min-h-12 items-center rounded-r px-3 font-semibold', pathname.startsWith('/kasus') ? 'bg-nb-bg text-navy' : 'text-nu hover:bg-nu-bg')}>Kasus saya</Link>
+                <>
+                  <Link href="/kasus" className={cx('flex min-h-12 items-center rounded-r px-3 font-semibold', pathname.startsWith('/kasus') ? 'bg-nb-bg text-navy' : 'text-nu hover:bg-nu-bg')}>Kasus saya</Link>
+                  <Link href="/akun" className={cx('flex min-h-12 items-center rounded-r px-3 font-semibold', pathname.startsWith('/akun') ? 'bg-nb-bg text-navy' : 'text-nu hover:bg-nu-bg')}>Profil saya</Link>
+                </>
               )}
               {user?.role === 'ADMIN' && <Link href="/admin" className="flex min-h-12 items-center rounded-r px-3 font-semibold text-nu hover:bg-nu-bg">Panel admin</Link>}
             </div>
@@ -149,7 +153,6 @@ export function SiteNav({ user }: { user: NavUser }) {
               ) : (
                 <Link href="/masuk" className={btnClass('secondary')}>Masuk</Link>
               )}
-              <span className="proto self-center">Prototipe konsep</span>
             </div>
           </div>
         </div>

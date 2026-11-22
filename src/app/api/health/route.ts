@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm'
 import { NextResponse } from 'next/server'
 import { DatabaseConfigError, dbMode, getDb, schema as s } from '@/server/db/client'
+import { storageDriverName, supabaseConfigured } from '@/server/storage'
 
 /** Kode error Postgres / jaringan → penjelasan aman (tanpa membocorkan kredensial). */
 function explain(err: unknown): string {
@@ -21,15 +22,29 @@ function explain(err: unknown): string {
 }
 
 function storageWarning() {
-  const driver = process.env.STORAGE_DRIVER || 'local'
-  if (process.env.VERCEL && driver !== 'supabase') return 'STORAGE_DRIVER harus "supabase" di Vercel agar unggah bukti berfungsi.'
-  if (driver === 'supabase' && !(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY)) return 'SUPABASE_URL dan SUPABASE_SERVICE_ROLE_KEY belum diisi.'
+  const driver = storageDriverName()
+  if (driver === 'unconfigured') return 'Unggah bukti tidak akan berfungsi: SUPABASE_URL dan SUPABASE_SERVICE_ROLE_KEY tidak terbaca di deployment ini. Isi di Vercel (environment Production) lalu Redeploy.'
+  if (driver === 'supabase' && !supabaseConfigured()) return 'SUPABASE_URL dan SUPABASE_SERVICE_ROLE_KEY belum diisi.'
   return null
 }
 
-/** Status kesehatan; dipakai workflow keep-alive dan untuk diagnosa deploy. */
+/** Status kesehatan; dipakai workflow keep-alive dan untuk diagnosa deploy. Tidak memuat nilai rahasia. */
 export async function GET() {
-  const base = { db: dbMode(), storage: process.env.STORAGE_DRIVER || 'local', storageWarning: storageWarning(), time: new Date().toISOString() }
+  const base = {
+    db: dbMode(),
+    storage: storageDriverName(),
+    storageWarning: storageWarning(),
+    env: {
+      STORAGE_DRIVER: process.env.STORAGE_DRIVER || null,
+      SUPABASE_URL: !!process.env.SUPABASE_URL,
+      SUPABASE_SERVICE_ROLE_KEY: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+      SESSION_SECRET: !!process.env.SESSION_SECRET,
+    },
+    deployment: process.env.VERCEL
+      ? { env: process.env.VERCEL_ENV ?? null, region: process.env.VERCEL_REGION ?? null, commit: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? null }
+      : null,
+    time: new Date().toISOString(),
+  }
   try {
     const db = await getDb()
     await db.execute(sql`select 1`)

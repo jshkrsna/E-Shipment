@@ -78,7 +78,7 @@ export default function BantuanPage() {
           </Card>
         </aside>
       </div>
-      <p className="note">Kontak diambil dari situs resmi <Link className="lnk" href="https://www.jne.co.id" target="_blank" rel="noopener noreferrer">jne.co.id</Link> (diperiksa Nov 2026). E-Shipmennt adalah prototipe konsep dan tidak berafiliasi dengan JNE.</p>
+      <p className="note">Kontak diambil dari situs resmi <Link className="lnk" href="https://www.jne.co.id" target="_blank" rel="noopener noreferrer">jne.co.id</Link> (diperiksa Nov 2026). E-Shipmennt tidak berafiliasi dengan JNE.</p>
     </div>
   )
 }

@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { Brankas, type VaultFile } from '@/components/brankas'
 import { ClaimForm } from '@/components/claim-form'
-import { Banner, Card, Chip, KV, LinkButton, Placeholder, Stamp } from '@/components/ui'
+import { Banner, Card, Chip, EvidencePhoto, KV, LinkButton, Stamp } from '@/components/ui'
 import { getCurrentUser } from '@/server/services/auth'
 import { getTrackingCached } from '@/server/services/shipments'
 import { fmtDateTime, fmtStamp } from '@/lib/format'
@@ -16,6 +16,10 @@ export default async function BuktiPage({ params }: { params: Promise<{ resi: st
   const handover = t.courierEvidence.find((e) => e.kind === 'handover')
   const pm = pickup?.meta ? (JSON.parse(pickup.meta) as Record<string, string>) : {}
   const hm = handover?.meta ? (JSON.parse(handover.meta) as Record<string, string>) : {}
+  // Berkas bukti (termasuk foto kurir) hanya boleh dibuka pemilik paket dan admin.
+  const canSeeFiles = t.isOwner || t.isAdmin
+  const photo = (e?: { id: number; storageKey: string | null }) => (e?.storageKey && canSeeFiles ? `/api/evidence/${e.id}/file` : null)
+  const photoEmpty = (e?: { storageKey: string | null }) => (e?.storageKey ? 'Foto hanya untuk penerima paket' : 'Foto belum dilampirkan kurir')
   const files: VaultFile[] = t.userEvidence.map((e) => ({
     id: e.id, fileName: e.fileName, mediaType: e.mediaType, source: e.source, size: e.size, durationSec: e.durationSec,
     locked: !!e.lockedAt, hasFile: !!e.storageKey, createdAt: e.createdAt.toISOString(),
@@ -28,7 +32,7 @@ export default async function BuktiPage({ params }: { params: Promise<{ resi: st
           <div className="flex items-center justify-between gap-2"><span className="font-semibold">Bukti pengambilan</span><Chip tone="nb" icon="lock">Dicatat kurir</Chip></div>
           {pickup ? (
             <>
-              <Placeholder className="h-36">Foto paket saat diambil<br />(placeholder)</Placeholder>
+              <EvidencePhoto src={photo(pickup)} alt="Foto paket saat diambil kurir" emptyText={photoEmpty(pickup)} className="h-36" />
               <KV
                 rows={[
                   ['Berat', pm.berat ?? '–'],
@@ -50,7 +54,7 @@ export default async function BuktiPage({ params }: { params: Promise<{ resi: st
           {handover ? (
             <>
               <div className="flex gap-3">
-                <Placeholder className="size-24 shrink-0">Foto serah terima</Placeholder>
+                <EvidencePhoto src={photo(handover)} alt="Foto serah terima paket" emptyText={photoEmpty(handover)} className="size-24 shrink-0" />
                 <div className="flex min-w-0 flex-col gap-1">
                   <Chip tone="ok" icon="check" className="self-start">{hm.metode ?? 'Konfirmasi OTP'}</Chip>
                   <span className="font-semibold">Diterima {fmtDateTime(handover.createdAt)}</span>
@@ -93,7 +97,6 @@ export default async function BuktiPage({ params }: { params: Promise<{ resi: st
       <Banner tone="nb" icon="info">
         <p className="text-[12px]">Berkas yang Anda tambahkan ditandai terpisah dari catatan kurir, dan akan terisi otomatis saat Anda melaporkan masalah.</p>
       </Banner>
-      <p className="note">Foto kurir pada data contoh berupa placeholder. Waktu dan nilai adalah data ilustrasi.</p>
     </>
   )
 }

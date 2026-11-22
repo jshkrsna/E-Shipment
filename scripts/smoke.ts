@@ -152,6 +152,45 @@ async function main() {
   r = await call(admin, 'POST', '/api/admin/incidents', { caseCode: code, type: 'Lainnya', title: 'Kemasan rusak di hub transit', cause: 'Kemasan tidak memadai', fix: 'Pemeriksaan kemasan di hub asal', resolutionDays: 1 })
   check('Publikasikan insiden dari kasus selesai', r.status === 200 && /^INC-/.test(r.data.incident.code), r.data)
 
+  // ── Edit profil (Pengguna & Admin) ─────────────────
+  r = await call({}, 'PATCH', '/api/auth/me', { name: 'X Y', email, phone: '081234567890' })
+  check('Profil: tanpa login ditolak', r.status === 401, r.data)
+  r = await call({}, 'POST', '/api/auth/password', { password: 'rahasiaBaru1', confirm: 'rahasiaBaru1' })
+  check('Kata sandi: tanpa login ditolak', r.status === 401, r.data)
+
+  const user2: Jar = {}
+  r = await call(user2, 'POST', '/api/auth/login', { email, password: 'rahasia123' })
+  check('Masuk di perangkat kedua', r.status === 200, r.data)
+
+  r = await call(user, 'PATCH', '/api/auth/me', { name: 'Penguji Diubah', email: email.toUpperCase(), phone: '6281299998888' })
+  check('Profil: ubah nama, email, nomor', r.status === 200 && r.data.user.name === 'Penguji Diubah' && r.data.user.email === email && r.data.user.phone === '081299998888', r.data)
+  r = await call(user, 'PATCH', '/api/auth/me', { name: 'Penguji Diubah', email: ADMIN_EMAIL, phone: '081299998888' })
+  check('Profil: email milik akun lain ditolak', r.status === 409, r.data)
+  r = await call(user, 'PATCH', '/api/auth/me', { name: 'Penguji Diubah', email, phone: '' })
+  check('Profil: nomor wajib untuk Pengguna', r.status === 422, r.data)
+
+  r = await call(user, 'POST', '/api/auth/password', { password: 'rahasiaBaru1', confirm: 'beda12345' })
+  check('Kata sandi: konfirmasi tidak cocok ditolak', r.status === 422, r.data)
+  r = await call({}, 'POST', '/api/auth/login', { email, password: 'rahasia123' })
+  check('Kata sandi lama masih berlaku setelah penolakan', r.status === 200, r.data)
+  r = await call(user, 'POST', '/api/auth/password', { password: 'rahasiaBaru1', confirm: 'rahasiaBaru1' })
+  check('Kata sandi: diganti', r.status === 200, r.data)
+  r = await call(user, 'GET', '/api/auth/me')
+  check('Sesi yang mengganti tetap masuk', r.data.user?.email === email, r.data)
+  r = await call(user2, 'GET', '/api/auth/me')
+  check('Sesi perangkat lain dikeluarkan', r.data.user === null, r.data)
+  r = await call({}, 'POST', '/api/auth/login', { email, password: 'rahasia123' })
+  check('Kata sandi lama tidak berlaku', r.status === 400, r.data)
+  r = await call({}, 'POST', '/api/auth/login', { email, password: 'rahasiaBaru1' })
+  check('Masuk dengan kata sandi baru', r.status === 200, r.data)
+
+  r = await call(admin, 'GET', '/api/auth/me')
+  const adminName = r.data.user.name as string
+  r = await call(admin, 'PATCH', '/api/auth/me', { name: 'Admin Uji', email: ADMIN_EMAIL, phone: '' })
+  check('Profil admin: nomor boleh kosong', r.status === 200 && r.data.user.name === 'Admin Uji' && r.data.user.phone === null, r.data)
+  r = await call(admin, 'PATCH', '/api/auth/me', { name: adminName, email: ADMIN_EMAIL, phone: '' })
+  check('Profil admin: nama dikembalikan', r.status === 200 && r.data.user.name === adminName, r.data)
+
   r = await call(user, 'POST', '/api/auth/logout')
   r = await call(user, 'GET', '/api/auth/me')
   check('Keluar', r.data.user === null)

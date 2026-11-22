@@ -22,7 +22,6 @@ export default async function LaporanLayout({ children }: { children: React.Reac
           <Chip tone="wn">Baru {counts.baru}</Chip>
           <Chip tone="nb">Diproses {counts.diproses}</Chip>
           <Chip tone="ok">Selesai {counts.selesai}</Chip>
-          <span className="proto">Prototipe konsep</span>
         </div>
       </div>
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
