@@ -33,6 +33,15 @@ async function removeFiles(keys: string[]) {
 }
 
 const rupiah = (n: number) => `Rp${n.toLocaleString('id-ID')}`
+const phoneOf = (k: (typeof SHOWCASE_ACCOUNTS)[number]['key']) => SHOWCASE_ACCOUNTS.find((a) => a.key === k)!.phone.slice(-4)
+const SCENARIO_ROWS = [
+  { awb: SHOWCASE_AWB.belumKlaim, label: 'Belum diklaim: klaim dulu sebelum bisa melapor', owner: 'tanpa pemilik', last4: phoneOf('tidakbisa') },
+  { awb: SHOWCASE_AWB.milikLain, label: 'Milik akun lain: tidak bisa diklaim/dilaporkan akun lain', owner: 'demo.baru', last4: phoneOf('baru') },
+  { awb: SHOWCASE_AWB.baru, label: 'Kasus Baru', owner: 'demo.baru', last4: phoneOf('baru') },
+  { awb: SHOWCASE_AWB.diproses, label: 'Kasus Diproses', owner: 'demo.diproses', last4: phoneOf('diproses') },
+  { awb: SHOWCASE_AWB.penyebab, label: 'Kasus Penyebab ditemukan', owner: 'demo.penyebab', last4: phoneOf('penyebab') },
+  { awb: SHOWCASE_AWB.selesai, label: 'Kasus Selesai', owner: 'demo.selesai', last4: phoneOf('selesai') },
+]
 
 /** Dokumen peraga (tanpa email/password admin agar aman di-commit). */
 async function writeDoc(codes: Record<string, string | undefined>, bulk: BulkPackage[]) {
@@ -46,15 +55,21 @@ async function writeDoc(codes: Record<string, string | undefined>, bulk: BulkPac
     '',
     '## Akun pengguna',
     '',
-    '| Email | Kasus | Keadaan |',
-    '|---|---|---|',
-    ...SHOWCASE_ACCOUNTS.map((a) => `| \`${a.email}\` | ${codes[a.key] ?? '–'} | ${a.scenario} |`),
+    '| Email | Telepon (4 digit akhir) | Kasus | Keadaan |',
+    '|---|---|---|---|',
+    ...SHOWCASE_ACCOUNTS.map((a) => `| \`${a.email}\` | ${a.phone} (\`${a.phone.slice(-4)}\`) | ${codes[a.key] ?? '–'} | ${a.scenario} |`),
+    '',
+    '## Paket skenario',
+    '',
+    '| Resi | Untuk peraga | Pemilik | 4 digit telepon penerima |',
+    '|---|---|---|---|',
+    ...SCENARIO_ROWS.map((r) => `| \`${r.awb}\` | ${r.label} | ${r.owner} | \`${r.last4}\` |`),
     '',
     `Peraga "tidak bisa melapor" (masuk sebagai \`demo.tidakbisa\`): buka \`/lapor/${SHOWCASE_AWB.milikLain}\` (sudah milik akun lain, ditolak) dan \`/lapor/${SHOWCASE_AWB.belumKlaim}\` (harus diklaim dulu dengan 4 digit \`1101\`).`,
     '',
     '## 100 paket peraga',
     '',
-    `Paket bertanda **milik pelapor** sudah dimiliki \`demo.pelapor@eshipmennt.test\` dan bisa langsung dilaporkan lewat \`/lapor/<resi>\`. Paket **tanpa pemilik** bisa diklaim akun mana pun dengan 4 digit terakhir di tabel.`,
+    `Semua resi bisa dilacak siapa saja di \`/lacak/<resi>\`. Paket **milik pelapor** sudah dimiliki \`demo.pelapor@eshipmennt.test\` dan bisa langsung dilaporkan lewat \`/lapor/<resi>\`. Paket **tanpa pemilik** bisa diklaim akun mana pun (Pengguna) memakai 4 digit telepon penerima di tabel.`,
     '',
     '| Status | Jumlah | Milik pelapor | Tanpa pemilik |',
     '|---|---|---|---|',
@@ -67,8 +82,8 @@ async function writeDoc(codes: Record<string, string | undefined>, bulk: BulkPac
   for (const k of kinds) {
     const all = bulk.filter((p) => p.kind === k)
     if (!all.length) continue
-    lines.push('', `### ${BULK_KIND_LABEL[k]} (${all.length})`, '', '| Resi | Rute | Nilai barang | Pemilik | Klaim (4 digit) |', '|---|---|---|---|---|')
-    for (const p of all) lines.push(`| \`${p.awb}\` | ${p.origin} → ${p.destination} | ${rupiah(p.itemValue)} | ${p.owned ? 'demo.pelapor' : `tanpa pemilik (${p.recipientName})`} | ${p.owned ? '–' : `\`${p.recipientPhone.slice(-4)}\``} |`)
+    lines.push('', `### ${BULK_KIND_LABEL[k]} (${all.length})`, '', '| Resi | Rute | Nilai barang | Pemilik | 4 digit telepon penerima |', '|---|---|---|---|---|')
+    for (const p of all) lines.push(`| \`${p.awb}\` | ${p.origin} → ${p.destination} | ${rupiah(p.itemValue)} | ${p.owned ? 'demo.pelapor' : `tanpa pemilik (${p.recipientName})`} | \`${p.recipientPhone.slice(-4)}\` |`)
   }
   const out = path.join(process.cwd(), 'docs', 'SHOWCASE.md')
   await fsp.mkdir(path.dirname(out), { recursive: true })
