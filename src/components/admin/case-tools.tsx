@@ -1,24 +1,34 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { api } from '@/lib/client'
 import { fmtRelativeDay } from '@/lib/format'
-import { MESSAGE_TEMPLATES, type Tone } from '@/lib/labels'
+import { categoryLabel, MESSAGE_TEMPLATES, type CategoryValue, type Tone } from '@/lib/labels'
 import { Banner, Button, Chip, cx } from '../ui'
 
-export type ListItem = { code: string; statusLabel: 'Baru' | 'Diproses' | 'Selesai'; tone: Tone; category: string; reporter: string; createdAt: string; escalated: boolean; priority: string }
+export type ListItem = { code: string; statusLabel: 'Baru' | 'Diproses' | 'Selesai'; tone: Tone; category: string; categoryKey: CategoryValue; reporter: string; createdAt: string; escalated: boolean; priority: string }
 
 export function AdminCaseList({ items }: { items: ListItem[] }) {
   const pathname = usePathname() || ''
-  const [filter, setFilter] = useState<'Semua' | ListItem['statusLabel']>('Semua')
+  const params = useSearchParams()
+  const STATUSES = ['Semua', 'Baru', 'Diproses', 'Selesai'] as const
+  const statusParam = STATUSES.find((x) => x.toLowerCase() === params.get('status'))
+  const jenisParam = params.get('jenis') as CategoryValue | null
+  const [filter, setFilter] = useState<'Semua' | ListItem['statusLabel']>(statusParam ?? 'Semua')
+  // Filter jenis datang dari tautan dasbor (?jenis=); tetap berlaku saat membuka kasus di daftar.
+  const [jenis, setJenis] = useState<CategoryValue | null>(jenisParam)
+  useEffect(() => {
+    if (jenisParam) setJenis(jenisParam)
+    if (statusParam) setFilter(statusParam)
+  }, [jenisParam, statusParam])
   const selected = pathname.split('/')[3]
-  const shown = filter === 'Semua' ? items : items.filter((i) => i.statusLabel === filter)
+  const shown = items.filter((i) => (filter === 'Semua' || i.statusLabel === filter) && (!jenis || i.categoryKey === jenis))
   return (
     <div className={cx('flex min-h-0 flex-col border-line bg-white lg:w-[300px] lg:shrink-0 lg:border-r', selected && 'hidden lg:flex')}>
       <div className="flex gap-1.5 overflow-x-auto border-b border-line p-3" role="group" aria-label="Filter status">
-        {(['Semua', 'Baru', 'Diproses', 'Selesai'] as const).map((f) => (
+        {STATUSES.map((f) => (
           <button
             key={f}
             type="button"
@@ -30,6 +40,12 @@ export function AdminCaseList({ items }: { items: ListItem[] }) {
           </button>
         ))}
       </div>
+      {jenis && (
+        <div className="flex items-center justify-between gap-2 border-b border-line px-3 py-2 text-[13px]">
+          <span>Jenis: <b>{jenis === 'TIDAK_DITERIMA' ? 'Barang hilang' : categoryLabel(jenis)}</b></span>
+          <button type="button" className="lnk min-h-9 px-1" onClick={() => setJenis(null)}>Hapus filter</button>
+        </div>
+      )}
       <ul className="flex-1 overflow-y-auto">
         {shown.map((i) => (
           <li key={i.code}>

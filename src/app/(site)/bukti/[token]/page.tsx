@@ -76,7 +76,11 @@ export default async function BuktiBersama({ params }: { params: Promise<{ token
             ) : (
               <div className="grid grid-cols-2 gap-2">
                 {userFiles.map((e) =>
-                  e.storageKey ? (
+                  e.mediaType === 'link' && e.url ? (
+                    <a key={e.id} href={e.url} target="_blank" rel="noopener noreferrer nofollow" className="ph col-span-2 min-h-14 justify-start gap-2 px-3 text-left font-semibold text-navy hover:underline">
+                      <Icon name="link" size={18} className="shrink-0" /><span className="truncate">{e.fileName}</span>
+                    </a>
+                  ) : e.storageKey ? (
                     e.mediaType === 'video' ? (
                       <video key={e.id} src={`/api/evidence/${e.id}/file?share=${token}`} controls preload="metadata" className="aspect-video w-full rounded-r bg-black" />
                     ) : (

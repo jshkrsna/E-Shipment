@@ -4,7 +4,7 @@ import { ClaimForm } from '@/components/claim-form'
 import { Banner, Card, Chip, EvidencePhoto, KV, LinkButton, Stamp } from '@/components/ui'
 import { getCurrentUser } from '@/server/services/auth'
 import { getTrackingCached } from '@/server/services/shipments'
-import { fmtDateTime, fmtStamp } from '@/lib/format'
+import { fmtDateTime, fmtStamp, linkProviderFromMeta } from '@/lib/format'
 import { Reveal } from '@/components/reveal'
 import { WireMemo } from '@/components/wire/memo'
 
@@ -25,6 +25,7 @@ export default async function BuktiPage({ params }: { params: Promise<{ resi: st
   const files: VaultFile[] = t.userEvidence.map((e) => ({
     id: e.id, fileName: e.fileName, mediaType: e.mediaType, source: e.source, size: e.size, durationSec: e.durationSec,
     locked: !!e.lockedAt, hasFile: !!e.storageKey, createdAt: e.createdAt.toISOString(),
+    url: e.mediaType === 'link' ? e.url : null, provider: e.mediaType === 'link' ? linkProviderFromMeta(e.meta) : null,
   }))
 
   return (

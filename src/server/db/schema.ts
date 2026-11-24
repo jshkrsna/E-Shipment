@@ -14,7 +14,7 @@ export const caseCategoryEnum = pgEnum('case_category', [
 export const identityResultEnum = pgEnum('identity_result', ['reference', 'match', 'mismatch', 'not_scanned'])
 export const evidenceOwnerEnum = pgEnum('evidence_owner', ['courier', 'user'])
 export const evidenceKindEnum = pgEnum('evidence_kind', ['pickup', 'handover', 'unboxing', 'hub_scan'])
-export const evidenceSourceEnum = pgEnum('evidence_source', ['device', 'google_drive', 'courier'])
+export const evidenceSourceEnum = pgEnum('evidence_source', ['device', 'google_drive', 'courier', 'link'])
 export const traceStatusEnum = pgEnum('trace_status', ['belum', 'tidak_ada', 'ditemukan'])
 export const anomalyTypeEnum = pgEnum('anomaly_type', ['mismatch', 'stuck', 'no_proof'])
 export const severityEnum = pgEnum('severity', ['tinggi', 'sedang', 'rendah'])
@@ -95,10 +95,11 @@ export const evidence = pgTable('evidence', {
   ownerType: evidenceOwnerEnum('owner_type').notNull(),
   uploadedBy: integer('uploaded_by').references(() => users.id),
   kind: evidenceKindEnum().notNull(),
-  mediaType: varchar('media_type', { length: 10 }).notNull(), // image | video | none
+  mediaType: varchar('media_type', { length: 10 }).notNull(), // image | video | link | none
   source: evidenceSourceEnum().notNull(),
   fileName: varchar('file_name', { length: 200 }).notNull(),
   storageKey: text('storage_key'),
+  url: text(), // tautan eksternal (GDrive, OneDrive, dll.) untuk mediaType = link
   mime: varchar({ length: 100 }),
   size: integer().default(0),
   durationSec: integer('duration_sec'),

@@ -133,12 +133,16 @@ export default async function KasusPage({ params, searchParams }: { params: Prom
                 {b.evidence.length === 0 && <li className="border-b border-line py-3.5 text-mut">Tidak ada bukti dilampirkan.</li>}
                 {b.evidence.map((e) => (
                   <li key={e.id} className="flex items-center justify-between gap-3 border-b border-line py-3.5">
-                    <span className="min-w-0 truncate">{e.ownerType === 'courier' ? (e.kind === 'handover' ? 'Bukti serah terima OTP' : 'Bukti pengambilan') : e.fileName}</span>
+                    {e.mediaType === 'link' && e.url ? (
+                      <a className="lnk flex min-w-0 items-center gap-1.5" href={e.url} target="_blank" rel="noopener noreferrer nofollow"><Icon name="link" size={16} className="shrink-0" /><span className="truncate">{e.fileName}</span></a>
+                    ) : (
+                      <span className="min-w-0 truncate">{e.ownerType === 'courier' ? (e.kind === 'handover' ? 'Bukti serah terima OTP' : 'Bukti pengambilan') : e.fileName}</span>
+                    )}
                     {e.ownerType === 'courier' ? <Chip tone="nb">Dicatat kurir</Chip> : <Chip tone="nu">Oleh Anda</Chip>}
                   </li>
                 ))}
               </ul>
-              <Stamp>Semua bukti memiliki cap integritas dan tidak dapat diubah.</Stamp>
+              <Stamp>{b.evidence.some((e) => e.mediaType === 'link') ? 'Berkas memiliki cap integritas dan tidak dapat diubah. Tautan eksternal dicatat apa adanya.' : 'Semua bukti memiliki cap integritas dan tidak dapat diubah.'}</Stamp>
             </section>
 
             <section className="flex flex-col gap-5">

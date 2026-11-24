@@ -101,3 +101,13 @@ export function duration(sec: number | null | undefined) {
   if (!sec) return ''
   return `${Math.floor(sec / 60)}:${pad(sec % 60)}`
 }
+
+/** Nama layanan tautan bukti (disimpan di meta saat tautan ditambahkan). */
+export function linkProviderFromMeta(meta: string | null | undefined) {
+  if (!meta) return null
+  try {
+    return (JSON.parse(meta) as { provider?: string }).provider ?? null
+  } catch {
+    return null
+  }
+}

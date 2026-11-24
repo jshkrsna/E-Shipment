@@ -16,6 +16,18 @@ const FILTERS = [
   { key: 'no_proof', label: 'Diterima tanpa bukti' },
 ] as const
 
+const CATEGORY_CARDS = [
+  { key: 'TERTUKAR', label: 'Barang tertukar', note: 'Isi paket tidak sesuai pesanan' },
+  { key: 'RUSAK', label: 'Barang rusak', note: 'Kemasan atau isi rusak' },
+  { key: 'TIDAK_DITERIMA', label: 'Barang hilang', note: 'Paket tidak diterima penerima' },
+] as const
+
+const CASE_STATUSES = [
+  { key: 'baru', label: 'Baru', dot: 'bg-wn' },
+  { key: 'diproses', label: 'Diproses', dot: 'bg-nb' },
+  { key: 'selesai', label: 'Selesai', dot: 'bg-ok' },
+] as const
+
 export default async function Dasbor({ searchParams }: { searchParams: Promise<{ f?: string }> }) {
   const { f } = await searchParams
   const filter = (FILTERS.find((x) => x.key === f)?.key ?? 'semua') as (typeof FILTERS)[number]['key']
@@ -29,7 +41,7 @@ export default async function Dasbor({ searchParams }: { searchParams: Promise<{
   ]
   return (
     <Reveal>
-      <WireMemo shape={{ queue: d.queue.length }} />
+      <WireMemo shape={{ queue: d.queue.length, other: d.otherCases ? 1 : 0 }} />
       <WireMemo scope="/admin" shape={Object.fromEntries(FILTERS.map((x) => [`c_${x.key}`, d.counts[x.key]]))} />
       <div className="flex flex-col gap-8 px-4 py-6 md:px-8 lg:px-10 lg:py-10">
         <div className="flex flex-wrap items-start justify-between gap-3">
@@ -47,6 +59,40 @@ export default async function Dasbor({ searchParams }: { searchParams: Promise<{
               <span className="text-[13px] text-mut">{k.note}</span>
             </div>
           ))}
+        </section>
+
+        <section className="flex flex-col rounded-p border border-line bg-white" aria-labelledby="per-jenis">
+          <div className="flex flex-wrap items-baseline justify-between gap-2 px-5 pt-5 pb-4">
+            <h2 id="per-jenis" className="text-[17px] font-semibold">Laporan per jenis masalah</h2>
+            <span className="text-[13px] text-mut">Semua laporan dari penerima{d.otherCases ? `, ${d.otherCases.toLocaleString('id-ID')} laporan jenis lain tidak ditampilkan` : ''}.</span>
+          </div>
+          <div className="grid border-t border-line md:grid-cols-3">
+            {CATEGORY_CARDS.map((k) => {
+              const c = d.categories[k.key]
+              return (
+                <div key={k.key} className="-mt-px flex flex-col gap-4 border-t border-line p-5 md:mt-0 md:border-t-0 md:border-l md:first:border-l-0">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex flex-col gap-1">
+                      <span className="font-semibold">{k.label}</span>
+                      <span className="text-[13px] text-mut">{k.note}</span>
+                    </div>
+                    <b className="num text-[30px] leading-none font-semibold tracking-[-0.02em] text-navy-d">{c.total.toLocaleString('id-ID')}</b>
+                  </div>
+                  <ul className="flex flex-col text-[14px]">
+                    {CASE_STATUSES.map((st) => (
+                      <li key={st.key}>
+                        <Link href={`/admin/laporan?jenis=${k.key}&status=${st.key}`} className="flex min-h-10 items-center justify-between gap-2 border-t border-line hover:text-navy">
+                          <span className="flex items-center gap-2"><span aria-hidden className={`size-2 rounded-full ${st.dot}`} />{st.label}</span>
+                          <span className="num font-semibold">{c[st.key].toLocaleString('id-ID')}</span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                  <LinkButton size="sm" variant="secondary" className="self-start" href={`/admin/laporan?jenis=${k.key}`}>Lihat laporan</LinkButton>
+                </div>
+              )
+            })}
+          </div>
         </section>
 
         <section className="flex flex-col gap-4 rounded-p border border-line bg-white">

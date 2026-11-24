@@ -299,10 +299,12 @@ export async function addNote(code: string, admin: SessionUser, input: unknown) 
 }
 
 // ── Dasbor & antrean anomali (eks O1/O2) ────────────────
+/** Jenis masalah yang dirinci di dasbor. "Barang hilang" = kategori Paket tidak diterima. */
+export const DASH_CATEGORIES = ['TERTUKAR', 'RUSAK', 'TIDAK_DITERIMA'] as const
 export async function getDashboard(filter: 'semua' | 'mismatch' | 'stuck' | 'no_proof' = 'semua') {
   const db = await getDb()
   const now = new Date()
-  const [[active], [atRisk], openAnoms, nearDeadline, queueRows] = await Promise.all([
+  const [[active], [atRisk], openAnoms, nearDeadline, queueRows, caseGroups] = await Promise.all([
     db.select({ n: sql<number>`count(*)::int` }).from(s.shipments).where(ne(s.shipments.status, 'Diterima')),
     db.select({ n: sql<number>`count(*)::int` }).from(s.shipments).where(and(ne(s.shipments.status, 'Diterima'), lt(s.shipments.eta, now))),
     db.select({ type: s.anomalies.type, n: sql<number>`count(*)::int` }).from(s.anomalies).where(isNull(s.anomalies.resolvedAt)).groupBy(s.anomalies.type),
@@ -314,7 +316,23 @@ export async function getDashboard(filter: 'semua' | 'mismatch' | 'stuck' | 'no_
       .leftJoin(s.users, eq(s.users.id, s.anomalies.assigneeId))
       .where(isNull(s.anomalies.resolvedAt))
       .orderBy(sql`case ${s.anomalies.severity} when 'tinggi' then 0 when 'sedang' then 1 else 2 end`, asc(s.anomalies.deadline)),
+    db.select({ category: s.cases.category, status: s.cases.status, n: sql<number>`count(*)::int` }).from(s.cases).groupBy(s.cases.category, s.cases.status),
   ])
+  // Rincian laporan per jenis masalah, dikelompokkan seperti status admin (Baru/Diproses/Selesai).
+  const byCategory = Object.fromEntries(
+    DASH_CATEGORIES.map((k) => [k, { total: 0, baru: 0, diproses: 0, selesai: 0 }]),
+  ) as Record<(typeof DASH_CATEGORIES)[number], { total: number; baru: number; diproses: number; selesai: number }>
+  let otherCases = 0
+  for (const g of caseGroups) {
+    const n = Number(g.n)
+    const bucket = byCategory[g.category as keyof typeof byCategory]
+    if (!bucket) {
+      otherCases += n
+      continue
+    }
+    bucket.total += n
+    bucket[adminStatus(g.status).label.toLowerCase() as 'baru' | 'diproses' | 'selesai'] += n
+  }
   const byType = Object.fromEntries(openAnoms.map((r) => [r.type, Number(r.n)])) as Record<string, number>
   const shipmentIds = queueRows.map((r) => r.a.shipmentId)
   const caseRows = shipmentIds.length
@@ -337,6 +355,8 @@ export async function getDashboard(filter: 'semua' | 'mismatch' | 'stuck' | 'no_
     },
     counts: { semua: total, mismatch: byType.mismatch ?? 0, stuck: byType.stuck ?? 0, no_proof: byType.no_proof ?? 0 },
     queue,
+    categories: byCategory,
+    otherCases,
   }
 }
 

@@ -94,6 +94,7 @@ export async function caseStatementPdf(b: CaseBundle) {
   text('Bukti dalam kasus', { f: bold, size: 11, gap: 4 })
   for (const e of b.evidence) {
     text(`• ${e.fileName} (${e.ownerType === 'courier' ? 'dicatat kurir' : 'oleh pelapor'}) · ${fmtStamp(e.createdAt)}`, { gap: 0 })
+    if (e.mediaType === 'link' && e.url) text(`  Tautan: ${e.url}`, { f: mono, size: 7.5, color: MUT, gap: 4 })
     if (e.sha256) text(`  SHA-256: ${e.sha256}`, { f: mono, size: 7.5, color: MUT, gap: 4 })
   }
   y -= 6

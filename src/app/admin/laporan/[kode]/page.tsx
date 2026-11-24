@@ -9,7 +9,8 @@ import { Banner, Card, Chip, Meta, TimelineItem, cx } from '@/components/ui'
 import { getAdminCase } from '@/server/services/admin'
 import { HttpError } from '@/server/http'
 import { adminStatus, categoryLabel, STATUS_DETAIL } from '@/lib/labels'
-import { dims, fmtDateTime, fmtRelativeDay, fmtShort, kg, remaining, rupiah } from '@/lib/format'
+import { dims, fmtDateTime, fmtRelativeDay, fmtShort, kg, linkProviderFromMeta, remaining, rupiah } from '@/lib/format'
+import { EvidenceViewer, type ViewerItem } from '@/components/admin/evidence-viewer'
 import type { TraceLoc } from '@/lib/validation'
 import { Reveal } from '@/components/reveal'
 import { WireMemo } from '@/components/wire/memo'
@@ -43,6 +44,12 @@ export default async function AdminCasePage({ params, searchParams }: { params: 
   const closed = c.status === 'SELESAI'
   const rem = remaining(c.stageDeadline)
   const userFiles = d.evidence.filter((e) => e.ownerType === 'user')
+  const viewerItems: ViewerItem[] = d.evidence.map((e) => ({
+    id: e.id, fileName: e.fileName, mediaType: e.mediaType, ownerType: e.ownerType, kind: e.kind, hasFile: !!e.storageKey,
+    url: e.mediaType === 'link' ? e.url : null, provider: e.mediaType === 'link' ? linkProviderFromMeta(e.meta) : null,
+    size: e.size, durationSec: e.durationSec, sha256: e.sha256, createdAt: e.createdAt.toISOString(),
+  }))
+  const mediaCount = viewerItems.filter((e) => e.hasFile && (e.mediaType === 'image' || e.mediaType === 'video')).length
   const messages: ChatMessage[] = d.messages.map((m) => ({ id: m.id, senderRole: m.senderRole, kind: m.kind, body: m.body, createdAt: m.createdAt.toISOString() }))
   const base = `/admin/laporan/${c.code}`
 
@@ -54,7 +61,7 @@ export default async function AdminCasePage({ params, searchParams }: { params: 
 
   return (
     <Reveal>
-      <WireMemo scope={`/admin/laporan/${c.code}`} shape={{ baru: c.status === 'BARU' ? 1 : 0, evidence: d.evidence.length, messages: Math.min(4, messages.length), ...bubbleShape(messages, 'admin') }} />
+      <WireMemo scope={`/admin/laporan/${c.code}`} shape={{ baru: c.status === 'BARU' ? 1 : 0, evidence: d.evidence.length - mediaCount, media: mediaCount, messages: Math.min(4, messages.length), ...bubbleShape(messages, 'admin') }} />
       <WireMemo shape={{ events: d.events.length, bad: d.events.findIndex((e) => e.isFirstMismatch), gap: d.events.findIndex((e) => e.kind === 'no_scan'), hubs: scanned.length, notes: d.notes.length, audit: d.audit.length }} />
       <div className="flex flex-col xl:h-full xl:flex-row">
         <div className="flex min-w-0 flex-1 flex-col gap-5 p-4 md:p-6 lg:p-8">
@@ -102,20 +109,7 @@ export default async function AdminCasePage({ params, searchParams }: { params: 
                     `Kontak lewat ${c.contactChannel === 'whatsapp' ? 'WhatsApp' : 'email'}`,
                   ]}
                 />
-                {d.evidence.length > 0 && (
-                  <ul className="flex flex-col gap-2 border-t border-line pt-4 text-[14px]">
-                    {d.evidence.map((e) => (
-                      <li key={e.id} className="flex items-center justify-between gap-2">
-                        {e.storageKey ? (
-                          <a className="lnk truncate" href={`/api/evidence/${e.id}/file`} target="_blank" rel="noreferrer">{e.fileName}</a>
-                        ) : (
-                          <span className="truncate">{e.ownerType === 'courier' ? (e.kind === 'handover' ? 'Bukti serah terima OTP' : 'Bukti pengambilan') : e.fileName}</span>
-                        )}
-                        <Chip tone={e.ownerType === 'courier' ? 'nb' : 'nu'}>{e.ownerType === 'courier' ? 'Dicatat kurir' : 'Oleh pelapor'}</Chip>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                <EvidenceViewer items={viewerItems} />
               </Card>
               <ValidationCard
                 code={c.code}
@@ -133,7 +127,7 @@ export default async function AdminCasePage({ params, searchParams }: { params: 
                 decisionSentAt={d.validation?.decisionSentAt?.toISOString() ?? null}
                 redeliveryAt={d.validation?.redeliveryAt?.toISOString() ?? null}
               />
-              {userFiles.length === 0 && <p className="note">Pelapor tidak melampirkan foto unboxing.</p>}
+              {userFiles.length === 0 && <p className="note">Pelapor tidak melampirkan foto, video, atau tautan.</p>}
             </>
           )}
 

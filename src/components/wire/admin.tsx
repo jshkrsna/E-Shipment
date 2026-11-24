@@ -55,6 +55,7 @@ function Table({ i, cols, heads, rows, pillCol, className }: { i: number; cols: 
 /* ── Dasbor ──────────────────────────────────────────── */
 
 const KPIS = ['Paket aktif', 'Berisiko', 'Macet', 'Tidak cocok', 'Kasus mendekati batas']
+const CATEGORY_WIRE = ['Barang tertukar', 'Barang rusak', 'Barang hilang']
 const DASH_FILTERS = [
   { key: 'semua', label: 'Semua' },
   { key: 'mismatch', label: 'Tidak cocok' },
@@ -118,6 +119,32 @@ export function AdminDashWire() {
           </div>
         ))}
       </WBox>
+      <WBox i={3} className="flex flex-col">
+        <div className="flex flex-wrap items-baseline justify-between gap-2 px-5 pt-5 pb-4">
+          <WText as="h2" i={3} className={H3}>Laporan per jenis masalah</WText>
+          <L i={4} w={pick(s, 'other', 0, 1) ? '340px' : '190px'} h={19.5} className="max-w-full" />
+        </div>
+        <div className="relative grid md:grid-cols-3">
+          <Hair i={3} top />
+          {CATEGORY_WIRE.map((k, n) => (
+            <div key={k} className={cx('relative flex flex-col gap-4 p-5', n > 0 && 'border-t md:border-t-0 md:border-l', CELL)}>
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex flex-col gap-1"><WText i={4 + n} className="font-semibold">{k}</WText><L i={4 + n} w="150px" h={19.5} /></div>
+                <WBox i={4 + n} r={4} className="h-[30px] w-10" />
+              </div>
+              <div className="flex flex-col">
+                {['Baru', 'Diproses', 'Selesai'].map((st, r) => (
+                  <div key={st} className={cx('flex min-h-10 items-center justify-between gap-2 border-t', CELL)}>
+                    <WText i={5 + n + r} className="text-[14px]">{st}</WText>
+                    <L i={5 + n + r} w="20px" />
+                  </div>
+                ))}
+              </div>
+              <WBtn i={6 + n} sm w={120} />
+            </div>
+          ))}
+        </div>
+      </WBox>
       <WBox i={4} className="flex flex-col gap-4">
         <div className="flex flex-wrap items-center justify-between gap-3 px-5 pt-5">
           <WText as="h2" i={5} className={H3}>Antrean anomali</WText>
@@ -152,6 +179,7 @@ function CaseTabs({ tab, code }: { tab: CaseTab; code: string }) {
   const t = useShape()
   const baru = pick(base, 'baru', 0, 1)
   const evidence = pick(base, 'evidence', 3, 10)
+  const media = pick(base, 'media', 0, 10)
   return (
     <>
       {tab === 'laporan' && (
@@ -165,6 +193,14 @@ function CaseTabs({ tab, code }: { tab: CaseTab; code: string }) {
             <div className="flex flex-wrap gap-x-4 gap-y-1"><L i={5} w="110px" /><L i={5} w="120px" /><L i={6} w="130px" /><L i={6} w="140px" /></div>
             <div className="relative flex flex-col gap-2 pt-4">
               <Hair i={6} top />
+              {media > 0 && (
+                <div className="mb-1 flex flex-col gap-2">
+                  <L i={6} w="260px" h={19.5} className="max-w-full" />
+                  <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 xl:grid-cols-5">
+                    {Array.from({ length: media }, (_, k) => <WBox key={k} i={6 + k} r={6} className="aspect-square w-full" />)}
+                  </div>
+                </div>
+              )}
               {Array.from({ length: evidence }, (_, k) => (
                 <div key={k} className="flex items-center justify-between gap-2"><L i={6 + k} w={`${44 - (k % 3) * 6}%`} /><WPill i={7 + k} w={k ? 92 : 104} /></div>
               ))}

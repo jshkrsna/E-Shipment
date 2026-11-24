@@ -9,7 +9,7 @@ export const metadata = { title: 'Laporan masuk' }
 export default async function LaporanLayout({ children }: { children: React.ReactNode }) {
   const { items, counts } = await listCases()
   const list: ListItem[] = items.map((i) => ({
-    code: i.code, statusLabel: i.statusLabel, tone: i.tone, category: categoryLabel(i.category, i.categoryOther),
+    code: i.code, statusLabel: i.statusLabel, tone: i.tone, category: categoryLabel(i.category, i.categoryOther), categoryKey: i.category,
     reporter: i.reporter, createdAt: i.createdAt.toISOString(), escalated: i.escalated, priority: i.priority,
   }))
   return (

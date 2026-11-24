@@ -6,13 +6,16 @@ import { api, fileMime, putWithProgress, videoDuration } from '@/lib/client'
 import { duration, fileSize, fmtDateTime } from '@/lib/format'
 import { Icon } from './icon'
 import { Modal } from './modal'
-import { Banner, Button, Chip, ProgressBar, cx } from './ui'
+import { Banner, Button, Chip, ProgressBar, btnClass, cx } from './ui'
 
 export type VaultFile = {
   id: number
   fileName: string
   mediaType: string
-  source: 'device' | 'google_drive' | 'courier'
+  source: 'device' | 'google_drive' | 'courier' | 'link'
+  /** Tautan eksternal (GDrive, OneDrive, dll.) bila mediaType = link. */
+  url: string | null
+  provider: string | null
   size: number | null
   durationSec: number | null
   locked: boolean
@@ -22,10 +25,26 @@ export type VaultFile = {
 
 type Upload = { name: string; pct: number; error?: string }
 
-const SOURCE = { device: 'Perangkat', google_drive: 'Google Drive', courier: 'Kurir' } as const
-const kindLabel = (f: VaultFile) => (f.mediaType === 'video' ? 'Video' : 'Foto')
+const SOURCE = { device: 'Perangkat', google_drive: 'Google Drive', courier: 'Kurir', link: 'Tautan' } as const
+const kindLabel = (f: VaultFile) => (f.mediaType === 'link' ? 'Tautan' : f.mediaType === 'video' ? 'Video' : 'Foto')
+const sourceLabel = (f: VaultFile) => (f.mediaType === 'link' ? f.provider || 'Tautan' : SOURCE[f.source])
 
 function Thumb({ f, className, controls = false }: { f: VaultFile; className?: string; controls?: boolean }) {
+  if (f.mediaType === 'link') {
+    return (
+      <div className={cx('ph flex-col gap-2 px-4 text-center', controls && 'w-full max-w-md bg-white', className)}>
+        <span className="grid size-12 place-items-center rounded-full bg-white text-navy"><Icon name="link" size={22} /></span>
+        <span className="font-semibold text-txt">{f.fileName}</span>
+        <span className="text-[13px] font-normal">{f.provider || 'Tautan eksternal'}</span>
+        {controls && f.url && (
+          <a href={f.url} target="_blank" rel="noopener noreferrer nofollow" className={btnClass('primary', 'mt-1')}>
+            <Icon name="external" size={18} />Buka tautan
+          </a>
+        )}
+        {controls && f.url && <span className="max-w-full truncate font-mono text-[11px] font-normal">{f.url}</span>}
+      </div>
+    )
+  }
   if (!f.hasFile) {
     return (
       <div className={cx('ph flex-col gap-1', className)}>
@@ -73,6 +92,10 @@ export function Brankas({ awb, files, canEdit }: { awb: string; files: VaultFile
   const [uploads, setUploads] = useState<Upload[]>([])
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [link, setLink] = useState({ name: '', url: '' })
+  const [linkError, setLinkError] = useState('')
+  const [linkBusy, setLinkBusy] = useState(false)
+  const [linkOpen, setLinkOpen] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const prevCount = useRef(files.length)
   const driveClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
@@ -172,6 +195,26 @@ export function Brankas({ awb, files, canEdit }: { awb: string; files: VaultFile
     }
   }
 
+  async function addLink(e: React.FormEvent) {
+    e.preventDefault()
+    setLinkError('')
+    const name = link.name.trim()
+    const url = link.url.trim()
+    if (!name) return setLinkError('Nama tautan wajib diisi.')
+    if (!/^https:\/\/\S+$/i.test(url)) return setLinkError('Tempel tautan lengkap yang diawali https://')
+    setLinkBusy(true)
+    try {
+      await api('/api/evidence/link', { method: 'POST', json: { awb, name, url } })
+      setLink({ name: '', url: '' })
+      setLinkOpen(false)
+      router.refresh()
+    } catch (err) {
+      setLinkError((err as Error).message)
+    } finally {
+      setLinkBusy(false)
+    }
+  }
+
   async function remove() {
     if (!cur) return
     setBusy(true)
@@ -198,6 +241,28 @@ export function Brankas({ awb, files, canEdit }: { awb: string; files: VaultFile
         {canEdit && (
           <Button icon="upload" onClick={() => setSheet(true)} className="w-full">Upload File</Button>
         )}
+        {canEdit && !linkOpen && (
+          <Button variant="secondary" icon="link" onClick={() => setLinkOpen(true)} className="w-full">Tambahkan link (Google Drive, OneDrive, dll.)</Button>
+        )}
+        {canEdit && linkOpen && (
+          <form onSubmit={addLink} className="flex flex-col gap-3 rounded-r border border-line p-4" noValidate>
+            <div className="flex items-center justify-between gap-3">
+              <span className="flex items-center gap-2 font-semibold"><Icon name="link" size={18} className="text-navy" />Tambahkan link</span>
+              <button type="button" onClick={() => { setLinkOpen(false); setLinkError('') }} className="grid size-9 place-items-center rounded-r text-mut hover:bg-nu-bg" aria-label="Tutup form link"><Icon name="x" size={18} /></button>
+            </div>
+            <div>
+              <label className="lbl" htmlFor="link-name">Nama link</label>
+              <input id="link-name" className="in" value={link.name} onChange={(e) => setLink((l) => ({ ...l, name: e.target.value }))} placeholder="Contoh: Video unboxing lengkap" maxLength={120} autoFocus />
+            </div>
+            <div>
+              <label className="lbl" htmlFor="link-url">Link</label>
+              <input id="link-url" type="url" inputMode="url" className="in" value={link.url} onChange={(e) => setLink((l) => ({ ...l, url: e.target.value }))} placeholder="https://drive.google.com/… atau https://1drv.ms/…" autoComplete="off" />
+            </div>
+            {linkError && <p className="text-[13px] font-semibold text-er" role="alert">{linkError}</p>}
+            <Button type="submit" icon="plus" disabled={linkBusy}>{linkBusy ? 'Menyimpan…' : 'Simpan link'}</Button>
+            <p className="hint">Atur akses link ke &ldquo;Siapa saja yang memiliki link&rdquo; agar admin dapat membukanya. Link disimpan apa adanya tanpa cap integritas.</p>
+          </form>
+        )}
         <input ref={inputRef} type="file" accept="image/*,video/*" multiple hidden onChange={(e) => uploadDeviceFiles(e.target.files)} />
 
         {uploads.length > 0 && (
@@ -218,7 +283,7 @@ export function Brankas({ awb, files, canEdit }: { awb: string; files: VaultFile
           <div className="ph h-40 flex-col gap-1 font-normal">
             <Icon name="image" size={28} />
             <span className="font-semibold">Belum ada foto atau video unboxing</span>
-            <span className="text-[13px]">{canEdit ? 'Unggah dari perangkat atau Google Drive.' : 'Pemilik paket belum menambahkan berkas.'}</span>
+            <span className="text-[13px]">{canEdit ? 'Unggah berkas, atau tambahkan link Google Drive/OneDrive.' : 'Pemilik paket belum menambahkan berkas.'}</span>
           </div>
         ) : (
           <>
@@ -244,7 +309,7 @@ export function Brankas({ awb, files, canEdit }: { awb: string; files: VaultFile
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-semibold">{cur.fileName}</p>
                   <p className="text-[13px] text-mut">
-                    {[kindLabel(cur), SOURCE[cur.source], cur.durationSec ? duration(cur.durationSec) : '', fileSize(cur.size)].filter(Boolean).join(' · ')}
+                    {[kindLabel(cur), sourceLabel(cur), cur.durationSec ? duration(cur.durationSec) : '', fileSize(cur.size)].filter(Boolean).join(' · ')}
                   </p>
                 </div>
                 <Button variant="secondary" icon="eye" onClick={() => setPreview(true)}>Preview</Button>
@@ -276,7 +341,9 @@ export function Brankas({ awb, files, canEdit }: { awb: string; files: VaultFile
                   {f.hasFile && f.mediaType === 'image' ? (
                     <Thumb f={f} className="size-full" />
                   ) : (
-                    <span className="grid size-full place-items-center bg-nu-bg text-[13px] font-semibold text-nu">{kindLabel(f)}</span>
+                    <span className="grid size-full place-items-center bg-nu-bg text-[13px] font-semibold text-nu">
+                      {f.mediaType === 'link' ? <span className="flex flex-col items-center gap-0.5"><Icon name="link" size={18} />Tautan</span> : kindLabel(f)}
+                    </span>
                   )}
                   {f.locked && <span className="absolute top-1 right-1 rounded-full bg-white p-0.5 text-ok"><Icon name="lock" size={12} /></span>}
                 </button>
@@ -317,7 +384,7 @@ export function Brankas({ awb, files, canEdit }: { awb: string; files: VaultFile
           <div className="flex min-h-14 items-center gap-3 px-4 text-white">
             <div className="min-w-0 flex-1">
               <p className="truncate font-semibold">{cur.fileName}</p>
-              <p className="text-[13px] text-[#9FB3D6]">{index + 1} / {files.length} · {SOURCE[cur.source]} · diunggah {fmtDateTime(cur.createdAt)}</p>
+              <p className="text-[13px] text-[#9FB3D6]">{index + 1} / {files.length} · {sourceLabel(cur)} · ditambahkan {fmtDateTime(cur.createdAt)}</p>
             </div>
             {canEdit && !cur.locked && (
               <button type="button" onClick={() => setConfirmDel(true)} className="grid size-11 place-items-center rounded-r text-[#FFB4AB] hover:bg-white/10" aria-label="Hapus berkas"><Icon name="trash" size={20} /></button>

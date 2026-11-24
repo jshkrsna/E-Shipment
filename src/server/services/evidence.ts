@@ -91,6 +91,51 @@ export async function importFromDrive(user: SessionUser, input: unknown) {
   return row
 }
 
+const LINK_HOSTS: [RegExp, string][] = [
+  [/(^|\.)(drive|docs)\.google\.com$/, 'Google Drive'],
+  [/(^|\.)(onedrive\.live\.com|1drv\.ms|sharepoint\.com)$/, 'OneDrive'],
+  [/(^|\.)dropbox\.com$/, 'Dropbox'],
+  [/(^|\.)(icloud\.com)$/, 'iCloud'],
+  [/(^|\.)(terabox\.com|1024terabox\.com)$/, 'TeraBox'],
+]
+
+/** Nama layanan dari host tautan, untuk label di brankas dan panel admin. */
+export function linkProvider(url: string) {
+  try {
+    const host = new URL(url).hostname.toLowerCase()
+    return LINK_HOSTS.find(([re]) => re.test(host))?.[1] ?? host.replace(/^www\./, '')
+  } catch {
+    return 'Tautan'
+  }
+}
+
+const linkSchema = z.object({
+  awb: z.string().min(4),
+  name: z.string().trim().min(1, 'Nama tautan wajib diisi.').max(120, 'Nama tautan maksimal 120 karakter.'),
+  url: z
+    .string()
+    .trim()
+    .max(2000, 'Tautan terlalu panjang.')
+    .url('Tautan tidak valid. Salin tautan lengkap yang diawali https://')
+    .refine((u) => /^https:\/\//i.test(u), 'Hanya tautan https:// yang diterima.'),
+})
+
+/** Tautan eksternal (Google Drive, OneDrive, dll.): disimpan apa adanya, tanpa berkas dan tanpa cap SHA-256. */
+export async function addLink(user: SessionUser, input: unknown) {
+  const data = linkSchema.parse(input)
+  const shipment = await getOwnedShipment(data.awb, user)
+  const db = await getDb()
+  const [row] = await db
+    .insert(s.evidence)
+    .values({
+      shipmentId: shipment.id, ownerType: 'user', uploadedBy: user.id, kind: 'unboxing',
+      mediaType: 'link', source: 'link', fileName: data.name.slice(0, 200), url: data.url,
+      meta: JSON.stringify({ provider: linkProvider(data.url) }),
+    })
+    .returning()
+  return row
+}
+
 export async function deleteEvidence(user: SessionUser, id: number) {
   const db = await getDb()
   const row = await db.query.evidence.findFirst({ where: and(eq(s.evidence.id, id), isNull(s.evidence.deletedAt)) })
