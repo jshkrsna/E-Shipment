@@ -45,7 +45,7 @@ const PATHS = {
 
 export type IconName = keyof typeof PATHS
 
-export function Icon({ name, size = 18, className = '', strokeWidth = 2 }: { name: IconName; size?: number; className?: string; strokeWidth?: number }) {
+export function Icon({ name, size = 18, className = '', strokeWidth = 1.75 }: { name: IconName; size?: number; className?: string; strokeWidth?: number }) {
   return (
     <svg
       width={size}

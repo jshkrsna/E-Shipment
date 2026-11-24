@@ -1,4 +1,5 @@
-import { Banner, Card, Chip } from '@/components/ui'
+import { Banner, Chip } from '@/components/ui'
+import { Reveal } from '@/components/reveal'
 
 export const metadata = { title: 'Studi kasus: paket tertukar' }
 
@@ -21,65 +22,70 @@ const GAPS = [
 
 export default function StudiKasusPage() {
   return (
-    <>
-      <header className="border-b border-line bg-white">
-        <div className="wx flex max-w-[1280px] flex-col gap-4 py-10 lg:py-12">
-          <div className="flex flex-wrap items-center gap-2"><span className="up">Studi kasus · sesuai laporan</span></div>
-          <h1 className="max-w-[760px] text-[26px] leading-tight font-extrabold md:text-[32px]">Saat data pelacakan tertutup, konsumen mudah disalahkan sementara penyebab sebenarnya tersembunyi.</h1>
-          <p className="max-w-[760px] text-[16px] text-mut">Kasus 2: paket tertukar di jalur pengiriman, penerima lebih dulu dituduh melakukan kecurangan. Halaman ini menunjukkan celahnya dan cara E-Shipmennt menutupnya.</p>
-        </div>
-      </header>
-
-      <section className="wx grid gap-6 py-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-8">
-        <div className="flex flex-col gap-4">
-          <h2 className="text-[20px] font-bold">Kasus sebagaimana dilaporkan</h2>
-          <div className="card overflow-hidden p-0">
-            <table className="tbl"><tbody>
-              {ROWS.map(([k, v]) => (
-                <tr key={k} className="flex flex-col md:table-row"><td className="w-[180px] !border-b-0 pb-0 text-mut md:!border-b md:pb-3">{k}</td><td>{v}</td></tr>
-              ))}
-            </tbody></table>
+    <Reveal>
+      <>
+        <header>
+          <div className="wx flex flex-col gap-5 pt-12 pb-12 lg:pt-16">
+            <p className="text-[14px] font-medium text-navy">Studi kasus, disusun sesuai laporan</p>
+            <h1 className="max-w-[820px] text-[30px] leading-[1.12] font-semibold tracking-[-0.025em] text-navy-d md:text-[42px]">Saat data pelacakan tertutup, konsumen mudah disalahkan sementara penyebab sebenarnya tersembunyi.</h1>
+            <p className="max-w-[62ch] text-[17px] leading-relaxed text-mut">Kasus 2: paket tertukar di jalur pengiriman, penerima lebih dulu dituduh melakukan kecurangan. Halaman ini menunjukkan celahnya dan cara E-Shipmennt menutupnya.</p>
           </div>
-        </div>
-        <aside className="flex flex-col gap-3 lg:pt-12">
-          <Banner tone="wn" icon="alert"><div className="flex flex-col gap-1"><span className="font-semibold">Belum diverifikasi secara independen</span><p className="text-[12px]">Unggahan sumber tidak dapat dibuka dan belum ada pemberitaan yang cocok. Semua rincian berlabel “sesuai laporan”.</p></div></Banner>
-          <Banner tone="nu" icon="info"><p className="text-[12px]">Identitas konsumen dalam laporan tidak ditampilkan. E-Shipmennt tidak berafiliasi dengan JNE.</p></Banner>
-        </aside>
-      </section>
+        </header>
 
-      <section className="wx pb-8">
-        <h2 className="mb-4 text-[20px] font-bold">Empat celah transparansi dan respons desain</h2>
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {GAPS.map((g, i) => (
-            <article key={i} className="card flex flex-col gap-2">
-              <Chip tone="er" className="self-start">Celah {i + 1}</Chip>
-              <p className="font-semibold">{g.t}</p>
-              <p className="text-[12px] text-mut">Dampak: {g.i}</p>
-              <hr className="hr" />
-              <p className="text-[12px]"><b>Respons:</b> {g.r}</p>
-            </article>
-          ))}
-        </div>
-      </section>
+        <section className="wx grid gap-8 pb-16 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-12">
+          <div className="flex flex-col gap-4">
+            <h2 className="text-[21px] font-semibold">Kasus sebagaimana dilaporkan</h2>
+            <dl className="border-t border-line">
+              {ROWS.map(([k, v]) => (
+                <div key={k} className="grid gap-1 border-b border-line py-3.5 md:grid-cols-[180px_minmax(0,1fr)] md:gap-6">
+                  <dt className="text-mut">{k}</dt>
+                  <dd>{v}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+          <aside className="flex flex-col gap-3 lg:pt-12">
+            <Banner tone="wn" icon="alert"><div className="flex flex-col gap-1"><span className="font-semibold">Belum diverifikasi secara independen</span><p className="text-[13px]">Unggahan sumber tidak dapat dibuka dan belum ada pemberitaan yang cocok. Semua rincian berlabel “sesuai laporan”.</p></div></Banner>
+            <Banner tone="nu" icon="info"><p className="text-[13px]">Identitas konsumen dalam laporan tidak ditampilkan. E-Shipmennt tidak berafiliasi dengan JNE.</p></Banner>
+          </aside>
+        </section>
 
-      <section className="wx pb-12">
-        <h2 className="mb-4 text-[20px] font-bold">Sebelum dan sesudah</h2>
-        <div className="grid gap-4 md:grid-cols-2">
-          <Card className="flex flex-col gap-3">
-            <div className="flex flex-wrap items-center justify-between gap-2"><span className="font-semibold">Tanpa transparansi (sesuai laporan)</span><Chip tone="er" icon="x">Konsumen disalahkan</Chip></div>
-            <ul className="flex list-disc flex-col gap-2 pl-5">
-              <li>Status “diterima” tanpa bukti yang dapat dilihat penerima.</li><li>Titik pertukaran paket tidak terlihat.</li><li>Tuduhan datang sebelum penyebab dipastikan.</li><li>Pengembalian dana setelah kurir mengakui kesalahan.</li>
-            </ul>
-          </Card>
-          <Card className="flex flex-col gap-3 border-ok">
-            <div className="flex flex-wrap items-center justify-between gap-2"><span className="font-semibold">Dengan E-Shipmennt</span><Chip tone="ok" icon="check">Bukti terlihat</Chip></div>
-            <ul className="flex list-disc flex-col gap-2 pl-5">
-              <li>Status terverifikasi menyebut sumbernya, mis. “OTP pukul 14:02”.</li><li>Ketidakcocokan pertama ditandai di linimasa dan peta.</li><li>Spanduk netral selama investigasi berjalan.</li><li>Ringkasan penyelesaian dan pengungkapan insiden publik.</li>
-            </ul>
-          </Card>
-        </div>
-        <p className="note mt-6">Sumber: Media Konsumen (@MediaKonsumenID), unggahan di X (belum diverifikasi independen).</p>
-      </section>
-    </>
+        <section className="wx pb-16">
+          <div className="sec">
+            <h2 className="text-[21px] font-semibold">Empat celah transparansi dan respons desain</h2>
+            <div className="mt-8 grid gap-x-12 gap-y-10 md:grid-cols-2">
+              {GAPS.map((g, i) => (
+                <article key={i} className="flex flex-col gap-3 border-l border-er/40 pl-5">
+                  <p className="text-[17px] leading-snug font-semibold">{g.t}</p>
+                  <p className="text-mut">Dampak: {g.i}</p>
+                  <p><span className="font-semibold text-navy">Respons:</span> {g.r}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="wx pb-20">
+          <div className="sec">
+          <h2 className="mb-8 text-[21px] font-semibold">Sebelum dan sesudah</h2>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="card flex flex-col gap-4 border-dashed bg-transparent">
+              <div className="flex flex-wrap items-center justify-between gap-2"><span className="font-semibold">Tanpa transparansi (sesuai laporan)</span><Chip tone="er" icon="x">Konsumen disalahkan</Chip></div>
+              <ul className="flex list-disc flex-col gap-2 pl-5 marker:text-line-d">
+                <li>Status “diterima” tanpa bukti yang dapat dilihat penerima.</li><li>Titik pertukaran paket tidak terlihat.</li><li>Tuduhan datang sebelum penyebab dipastikan.</li><li>Pengembalian dana setelah kurir mengakui kesalahan.</li>
+              </ul>
+            </div>
+            <div className="card flex flex-col gap-4">
+              <div className="flex flex-wrap items-center justify-between gap-2"><span className="font-semibold">Dengan E-Shipmennt</span><Chip tone="ok" icon="check">Bukti terlihat</Chip></div>
+              <ul className="flex list-disc flex-col gap-2 pl-5 marker:text-line-d">
+                <li>Status terverifikasi menyebut sumbernya, mis. “OTP pukul 14:02”.</li><li>Ketidakcocokan pertama ditandai di linimasa dan peta.</li><li>Spanduk netral selama investigasi berjalan.</li><li>Ringkasan penyelesaian dan pengungkapan insiden publik.</li>
+              </ul>
+            </div>
+          </div>
+          <p className="note mt-8">Sumber: Media Konsumen (@MediaKonsumenID), unggahan di X (belum diverifikasi independen).</p>
+          </div>
+        </section>
+      </>
+    </Reveal>
   )
 }

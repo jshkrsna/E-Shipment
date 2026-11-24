@@ -29,8 +29,8 @@ function Thumb({ f, className, controls = false }: { f: VaultFile; className?: s
   if (!f.hasFile) {
     return (
       <div className={cx('ph flex-col gap-1', className)}>
-        <span className="rounded-full bg-white px-2 py-0.5 text-[12px] font-bold text-nu">{kindLabel(f)}</span>
-        <span className="px-2 text-[12px]">{f.fileName}</span>
+        <span className="rounded-full bg-white px-2 py-0.5 text-[13px] font-semibold text-nu">{kindLabel(f)}</span>
+        <span className="px-2 text-[13px]">{f.fileName}</span>
         <span className="text-[11px] font-normal">Berkas tidak tersedia</span>
       </div>
     )
@@ -191,7 +191,7 @@ export function Brankas({ awb, files, canEdit }: { awb: string; files: VaultFile
   return (
     <section className="flex flex-col gap-3" aria-label="Brankas unboxing">
       <div className="flex items-center justify-between gap-2">
-        <h2 className="text-[16px] font-bold">Brankas unboxing</h2>
+        <h2 className="text-[17px] font-semibold">Brankas unboxing</h2>
         <Chip tone="nu">Ditambahkan oleh Anda</Chip>
       </div>
       <div className="card flex flex-col gap-3">
@@ -204,11 +204,11 @@ export function Brankas({ awb, files, canEdit }: { awb: string; files: VaultFile
           <ul className="flex flex-col gap-2" aria-live="polite">
             {uploads.map((u, i) => (
               <li key={i} className="flex flex-col gap-1">
-                <div className="flex justify-between gap-2 text-[12px]">
+                <div className="flex justify-between gap-2 text-[13px]">
                   <span className="truncate">{u.error ? `Gagal: ${u.name}` : `Mengunggah ${u.name}`}</span>
                   <span className="font-mono">{u.error ? '' : `${u.pct}%`}</span>
                 </div>
-                {u.error ? <p className="text-[12px] font-semibold text-er">{u.error}</p> : <ProgressBar value={u.pct} label={`Progres ${u.name}`} />}
+                {u.error ? <p className="text-[13px] font-semibold text-er">{u.error}</p> : <ProgressBar value={u.pct} label={`Progres ${u.name}`} />}
               </li>
             ))}
           </ul>
@@ -218,7 +218,7 @@ export function Brankas({ awb, files, canEdit }: { awb: string; files: VaultFile
           <div className="ph h-40 flex-col gap-1 font-normal">
             <Icon name="image" size={28} />
             <span className="font-semibold">Belum ada foto atau video unboxing</span>
-            <span className="text-[12px]">{canEdit ? 'Unggah dari perangkat atau Google Drive.' : 'Pemilik paket belum menambahkan berkas.'}</span>
+            <span className="text-[13px]">{canEdit ? 'Unggah dari perangkat atau Google Drive.' : 'Pemilik paket belum menambahkan berkas.'}</span>
           </div>
         ) : (
           <>
@@ -236,14 +236,14 @@ export function Brankas({ awb, files, canEdit }: { awb: string; files: VaultFile
                   </button>
                 </>
               )}
-              <span className="absolute bottom-3 left-3 rounded-full bg-white px-3 py-1 text-[13px] font-bold text-nu" aria-live="polite">{index + 1} / {files.length}</span>
+              <span className="absolute bottom-3 left-3 rounded-full bg-white px-3 py-1 text-[13px] font-semibold text-nu" aria-live="polite">{index + 1} / {files.length}</span>
             </div>
 
             {cur && (
               <div className="flex items-center gap-3">
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-semibold">{cur.fileName}</p>
-                  <p className="text-[12px] text-mut">
+                  <p className="text-[13px] text-mut">
                     {[kindLabel(cur), SOURCE[cur.source], cur.durationSec ? duration(cur.durationSec) : '', fileSize(cur.size)].filter(Boolean).join(' · ')}
                   </p>
                 </div>
@@ -276,7 +276,7 @@ export function Brankas({ awb, files, canEdit }: { awb: string; files: VaultFile
                   {f.hasFile && f.mediaType === 'image' ? (
                     <Thumb f={f} className="size-full" />
                   ) : (
-                    <span className="grid size-full place-items-center bg-nu-bg text-[12px] font-semibold text-nu">{kindLabel(f)}</span>
+                    <span className="grid size-full place-items-center bg-nu-bg text-[13px] font-semibold text-nu">{kindLabel(f)}</span>
                   )}
                   {f.locked && <span className="absolute top-1 right-1 rounded-full bg-white p-0.5 text-ok"><Icon name="lock" size={12} /></span>}
                 </button>
@@ -293,7 +293,7 @@ export function Brankas({ awb, files, canEdit }: { awb: string; files: VaultFile
         <div className="flex flex-col gap-2 p-4">
           <button type="button" onClick={() => inputRef.current?.click()} className="flex min-h-16 items-center gap-3 rounded-r border border-line-d px-4 text-left hover:bg-nb-bg">
             <span className="grid size-10 place-items-center rounded-full bg-nb-bg text-navy"><Icon name="device" size={20} /></span>
-            <span className="flex flex-col"><b>Perangkat</b><span className="text-[12px] text-mut">Galeri, kamera, atau berkas · foto & video maks 50 MB</span></span>
+            <span className="flex flex-col"><b>Perangkat</b><span className="text-[13px] text-mut">Galeri, kamera, atau berkas · foto & video maks 50 MB</span></span>
           </button>
           <button
             type="button"
@@ -304,7 +304,7 @@ export function Brankas({ awb, files, canEdit }: { awb: string; files: VaultFile
             <span className="grid size-10 place-items-center rounded-full bg-ok-bg text-ok"><Icon name="drive" size={20} /></span>
             <span className="flex flex-col">
               <b>Google Drive</b>
-              <span className="text-[12px] text-mut">{driveEnabled ? 'Pilih foto atau video dari Drive Anda' : 'Belum dikonfigurasi oleh pengelola situs'}</span>
+              <span className="text-[13px] text-mut">{driveEnabled ? 'Pilih foto atau video dari Drive Anda' : 'Belum dikonfigurasi oleh pengelola situs'}</span>
             </span>
           </button>
           <p className="hint mt-1">Berkas mendapat cap integritas (SHA-256) saat disimpan dan terkunci setelah dilampirkan pada laporan.</p>
@@ -317,7 +317,7 @@ export function Brankas({ awb, files, canEdit }: { awb: string; files: VaultFile
           <div className="flex min-h-14 items-center gap-3 px-4 text-white">
             <div className="min-w-0 flex-1">
               <p className="truncate font-semibold">{cur.fileName}</p>
-              <p className="text-[12px] text-[#9FB3D6]">{index + 1} / {files.length} · {SOURCE[cur.source]} · diunggah {fmtDateTime(cur.createdAt)}</p>
+              <p className="text-[13px] text-[#9FB3D6]">{index + 1} / {files.length} · {SOURCE[cur.source]} · diunggah {fmtDateTime(cur.createdAt)}</p>
             </div>
             {canEdit && !cur.locked && (
               <button type="button" onClick={() => setConfirmDel(true)} className="grid size-11 place-items-center rounded-r text-[#FFB4AB] hover:bg-white/10" aria-label="Hapus berkas"><Icon name="trash" size={20} /></button>
@@ -333,7 +333,7 @@ export function Brankas({ awb, files, canEdit }: { awb: string; files: VaultFile
               </>
             )}
           </div>
-          <p className="px-4 pb-4 text-center text-[12px] text-[#9FB3D6]">{cur.locked ? 'Terkunci: sudah dilampirkan pada laporan.' : 'Belum dilaporkan: masih dapat dihapus.'}</p>
+          <p className="px-4 pb-4 text-center text-[13px] text-[#9FB3D6]">{cur.locked ? 'Terkunci: sudah dilampirkan pada laporan.' : 'Belum dilaporkan: masih dapat dihapus.'}</p>
         </div>
       )}
 

@@ -42,10 +42,10 @@ export function CaseActions({
     <div className="flex flex-col gap-2" id="bagikan">
       <a href={`/api/cases/${code}/statement`} className={btnClass('primary')}><Icon name="download" size={18} />Unduh pernyataan kasus (PDF)</a>
       {share ? (
-        <div className="flex flex-col gap-2 rounded-r border border-line p-3">
+        <div className="flex flex-col gap-2.5 rounded-p border border-line bg-white p-4">
           <span className="text-[13px] font-semibold">Tautan bukti hanya baca</span>
-          <input readOnly value={shareUrl} className="in font-mono text-[12px]" onFocus={(e) => e.currentTarget.select()} aria-label="Tautan bukti" />
-          <span className="text-[12px] text-mut">Berlaku sampai {fmtDateTime(share.expiresAt)}. Data pribadi disamarkan.</span>
+          <input readOnly value={shareUrl} className="in font-mono text-[13px]" onFocus={(e) => e.currentTarget.select()} aria-label="Tautan bukti" />
+          <span className="text-[13px] text-mut">Berlaku sampai {fmtDateTime(share.expiresAt)}. Data pribadi disamarkan.</span>
           <div className="flex flex-wrap gap-2">
             <Button size="sm" variant="secondary" icon="link" onClick={copy}>Salin</Button>
             <a href={`/bukti/${share.token}`} target="_blank" className={btnClass('secondary', false, 'sm')}><Icon name="eye" size={16} />Lihat</a>

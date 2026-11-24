@@ -25,7 +25,7 @@ export function Modal({
   if (!open) return null
   return (
     <div className={cx('fixed inset-0 z-[60] flex justify-center', variant === 'center' ? 'items-center p-4' : 'items-end md:items-center md:p-4')}>
-      <button type="button" aria-label="Tutup" className="absolute inset-0 bg-navy-d/55" onClick={onClose} />
+      <button type="button" aria-label="Tutup" className="anim-fade absolute inset-0 bg-navy-d/45" onClick={onClose} />
       <div
         ref={ref}
         tabIndex={-1}
@@ -34,13 +34,13 @@ export function Modal({
         aria-label={labelledBy ? undefined : title}
         aria-labelledby={labelledBy}
         className={cx(
-          'relative z-[1] flex max-h-[90dvh] w-full flex-col overflow-auto bg-white shadow-2xl outline-none',
-          variant === 'center' ? 'max-w-md rounded-r' : 'rounded-t-2xl md:max-w-md md:rounded-r',
+          'relative z-[1] flex max-h-[90dvh] w-full flex-col overflow-auto bg-white shadow-[0_24px_60px_-20px_rgba(13,33,66,0.35)] outline-none',
+          variant === 'center' ? 'anim-pop max-w-md rounded-p' : 'anim-sheet rounded-t-2xl md:anim-pop md:max-w-md md:rounded-p',
         )}
       >
         {title && (
-          <div className="flex min-h-14 items-center justify-between gap-2 border-b border-line px-4">
-            <h2 className="text-[16px] font-bold">{title}</h2>
+          <div className="flex min-h-14 items-center justify-between gap-2 border-b border-line px-5">
+            <h2 className="text-[17px] font-semibold">{title}</h2>
             <button type="button" onClick={onClose} className="grid size-10 place-items-center rounded-r text-nu hover:bg-nu-bg" aria-label="Tutup">
               <Icon name="x" size={20} />
             </button>

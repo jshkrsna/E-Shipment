@@ -38,7 +38,7 @@ export function IncidentForm({ cases }: { cases: ClosedCase[] }) {
 
   return (
     <form onSubmit={submit} className="card flex flex-col gap-3">
-      <h2 className="text-[16px] font-bold">Publikasikan insiden</h2>
+      <h2 className="text-[17px] font-semibold">Publikasikan insiden</h2>
       <div>
         <label className="lbl" htmlFor="case">Dari kasus selesai (opsional)</label>
         <select id="case" className="in" value={f.caseCode} onChange={(e) => pickCase(e.target.value)}>

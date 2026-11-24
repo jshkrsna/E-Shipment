@@ -69,14 +69,14 @@ export function CaseChat({
 
   return (
     <section className={cx('flex min-h-0 flex-col', className)} aria-label="Percakapan">
-      <div className="flex min-h-14 items-center border-b border-line px-4">
-        <h2 className="text-[16px] font-bold">{viewer === 'admin' ? 'Percakapan dengan pelapor' : 'Percakapan dengan admin ekspedisi'}</h2>
+      <div className="flex min-h-14 items-center border-b border-line px-5">
+        <h2 className="text-[17px] font-semibold">{viewer === 'admin' ? 'Percakapan dengan pelapor' : 'Percakapan dengan admin ekspedisi'}</h2>
       </div>
       <div ref={listRef} className="flex min-h-[220px] flex-1 flex-col gap-3 overflow-y-auto p-4" aria-live="polite">
         {messages.map((m) => {
           if (m.senderRole === 'sistem') {
             return (
-              <p key={m.id} className="mx-auto max-w-[90%] rounded-full bg-nu-bg px-3 py-1 text-center text-[12px] text-nu">
+              <p key={m.id} className="mx-auto max-w-[90%] px-3 py-1 text-center text-[12px] text-mut">
                 {m.body} · {fmtRelativeDay(m.createdAt)}
               </p>
             )
@@ -85,14 +85,14 @@ export function CaseChat({
           const who = m.senderRole === 'pelapor' ? (viewer === 'pelapor' ? 'Anda' : `Pelapor ${reporterLabel}`) : viewer === 'admin' ? 'Anda (admin)' : 'Admin ekspedisi'
           return (
             <div key={m.id} className={cx('flex max-w-[85%] flex-col gap-1', mine ? 'items-end self-end' : 'items-start self-start')}>
-              <span className="text-[12px] text-mut">{who} · {fmtRelativeDay(m.createdAt)}</span>
+              <span className="text-[12px] text-mut"><span className="font-medium text-nu">{who}</span>&ensp;{fmtRelativeDay(m.createdAt)}</span>
               <div
                 className={cx(
-                  'rounded-[12px] px-3.5 py-2.5 whitespace-pre-line',
-                  m.kind === 'keputusan' ? 'border-2 border-ok bg-ok-bg' : mine ? 'bg-navy text-white' : 'bg-nb-bg',
+                  'rounded-[14px] px-3.5 py-2.5 text-[14px] whitespace-pre-line',
+                  m.kind === 'keputusan' ? 'border-l-2 border-ok bg-ok-bg' : mine ? 'rounded-br-[4px] bg-navy text-white' : 'rounded-bl-[4px] bg-bg',
                 )}
               >
-                {m.kind === 'keputusan' && <span className="mb-1 flex items-center gap-1 text-[12px] font-bold text-ok"><Icon name="check" size={14} />Keputusan</span>}
+                {m.kind === 'keputusan' && <span className="mb-1 flex items-center gap-1 text-[13px] font-semibold text-ok"><Icon name="check" size={14} />Keputusan</span>}
                 {m.body}
               </div>
             </div>
@@ -106,7 +106,7 @@ export function CaseChat({
           {viewer === 'admin' && (
             <div className="flex flex-wrap gap-2" role="group" aria-label="Template balasan">
               {QUICK_REPLIES.map((q) => (
-                <button key={q.label} type="button" onClick={() => setDraft(q.text)} className="min-h-9 rounded-full border border-line-d px-3 text-[13px] font-semibold text-nu hover:bg-nu-bg">
+                <button key={q.label} type="button" onClick={() => setDraft(q.text)} className="min-h-9 rounded-full border border-line-d px-3 text-[13px] font-medium text-nu transition-colors hover:border-navy hover:text-navy">
                   {q.label}
                 </button>
               ))}
@@ -124,7 +124,7 @@ export function CaseChat({
             }}
             placeholder={viewer === 'admin' ? 'Tulis balasan untuk pelapor' : 'Tambahkan informasi untuk admin'}
           />
-          {error && <p className="text-[12px] font-semibold text-er" role="alert">{error}</p>}
+          {error && <p className="text-[13px] font-semibold text-er" role="alert">{error}</p>}
           <Button type="submit" icon="send" disabled={busy || !draft.trim()}>{busy ? 'Mengirim…' : viewer === 'admin' ? 'Kirim reply' : 'Kirim pesan'}</Button>
         </form>
       )}

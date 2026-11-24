@@ -52,7 +52,7 @@ export function ReportForm({ awb, evidence, defaultCategory }: { awb: string; ev
         <legend className="lbl">Apa masalahnya?</legend>
         <div className="grid gap-2 md:grid-cols-2">
           {CATEGORY_OPTIONS.map((o) => (
-            <label key={o.value} className={cx('flex min-h-12 cursor-pointer items-center gap-3 rounded-r px-3 py-2', category === o.value ? 'border-2 border-navy bg-nb-bg' : 'border border-line-d bg-white hover:bg-nu-bg', o.value === 'LAINNYA' && category === 'LAINNYA' && 'md:col-span-2')}>
+            <label key={o.value} className={cx('flex min-h-12 cursor-pointer items-center gap-3 rounded-r px-3 py-2', category === o.value ? 'border border-navy bg-nb-bg/60 shadow-[inset_0_0_0_1px_var(--color-navy)]' : 'border border-line-d bg-white transition-colors hover:border-navy/50', o.value === 'LAINNYA' && category === 'LAINNYA' && 'md:col-span-2')}>
               <input type="radio" name="kat" value={o.value} checked={category === o.value} onChange={() => setCategory(o.value)} className="size-5 accent-navy" />
               <span>{o.label}</span>
             </label>
@@ -72,7 +72,7 @@ export function ReportForm({ awb, evidence, defaultCategory }: { awb: string; ev
               aria-describedby="lainnya-h"
               autoFocus
             />
-            <p id="lainnya-h" className={cx('text-[12px]', otherMissing ? 'font-semibold text-er' : 'text-mut')}>
+            <p id="lainnya-h" className={cx('text-[13px]', otherMissing ? 'font-semibold text-er' : 'text-mut')}>
               {otherMissing ? 'Wajib diisi. Laporan tidak dapat dikirim selama kolom ini kosong.' : `${other.length}/200 karakter`}
             </p>
           </div>
@@ -91,7 +91,7 @@ export function ReportForm({ awb, evidence, defaultCategory }: { awb: string; ev
           <p className="note">Belum ada bukti. Anda dapat menambah foto/video di tab Bukti sebelum melapor.</p>
         ) : (
           evidence.map((e) => (
-            <label key={e.id} className={cx('flex min-h-12 cursor-pointer items-center gap-3 rounded-r px-3 py-2', picked.includes(e.id) ? 'border-2 border-navy bg-nb-bg' : 'border border-line-d bg-white')}>
+            <label key={e.id} className={cx('flex min-h-12 cursor-pointer items-center gap-3 rounded-r px-3 py-2', picked.includes(e.id) ? 'border border-navy bg-nb-bg/60 shadow-[inset_0_0_0_1px_var(--color-navy)]' : 'border border-line-d bg-white transition-colors hover:border-navy/50')}>
               <input type="checkbox" checked={picked.includes(e.id)} onChange={() => toggle(e.id)} className="size-5 accent-navy" />
               <span className="min-w-0 grow truncate">{e.label}</span>
               {e.owner === 'user' ? <Chip tone="nu">Oleh Anda</Chip> : <Chip tone="nb">Dicatat kurir</Chip>}
@@ -105,7 +105,7 @@ export function ReportForm({ awb, evidence, defaultCategory }: { awb: string; ev
         <legend className="lbl">Hubungi saya lewat</legend>
         <div className="flex gap-2">
           {(['whatsapp', 'email'] as const).map((c) => (
-            <label key={c} className={cx('flex min-h-12 flex-1 cursor-pointer items-center gap-3 rounded-r px-3', contact === c ? 'border-2 border-navy bg-nb-bg' : 'border border-line-d bg-white')}>
+            <label key={c} className={cx('flex min-h-12 flex-1 cursor-pointer items-center gap-3 rounded-r px-3', contact === c ? 'border border-navy bg-nb-bg/60 shadow-[inset_0_0_0_1px_var(--color-navy)]' : 'border border-line-d bg-white transition-colors hover:border-navy/50')}>
               <input type="radio" name="kontak" checked={contact === c} onChange={() => setContact(c)} className="size-5 accent-navy" />
               <span>{c === 'whatsapp' ? 'WhatsApp' : 'Email'}</span>
             </label>
@@ -119,7 +119,7 @@ export function ReportForm({ awb, evidence, defaultCategory }: { awb: string; ev
           {busy ? 'Mengirim…' : <><Icon name="send" size={18} />Kirim laporan</>}
         </Button>
         {!canSubmit && !busy && (
-          <p className="mt-2 text-[12px] text-mut">{!category ? 'Pilih jenis masalah.' : otherMissing ? 'Isi kolom Lainnya terlebih dahulu.' : storyMissing ? 'Tulis cerita singkat minimal 10 karakter.' : ''}</p>
+          <p className="mt-2 text-[13px] text-mut">{!category ? 'Pilih jenis masalah.' : otherMissing ? 'Isi kolom Lainnya terlebih dahulu.' : storyMissing ? 'Tulis cerita singkat minimal 10 karakter.' : ''}</p>
         )}
       </div>
     </form>

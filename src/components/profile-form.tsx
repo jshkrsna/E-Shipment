@@ -54,7 +54,7 @@ export function ProfileForm({ user }: { user: ProfileUser }) {
   return (
     <div className="grid items-start gap-4 lg:grid-cols-2">
       <form onSubmit={saveProfile} className="card flex flex-col gap-4" noValidate aria-labelledby="h-data">
-        <h2 id="h-data" className="text-[16px] font-bold">Data akun</h2>
+        <h2 id="h-data" className="text-[17px] font-semibold">Data akun</h2>
         <div><label className="lbl" htmlFor="p-name">Nama lengkap</label><input id="p-name" className="in" value={form.name} onChange={set('name')} autoComplete="name" required /></div>
         <div><label className="lbl" htmlFor="p-email">Email</label><input id="p-email" type="email" className="in" value={form.email} onChange={set('email')} autoComplete="email" required /></div>
         <div>
@@ -67,7 +67,7 @@ export function ProfileForm({ user }: { user: ProfileUser }) {
       </form>
 
       <form onSubmit={savePassword} className="card flex flex-col gap-4" noValidate aria-labelledby="h-pass">
-        <h2 id="h-pass" className="text-[16px] font-bold">Ganti kata sandi</h2>
+        <h2 id="h-pass" className="text-[17px] font-semibold">Ganti kata sandi</h2>
         <div>
           <label className="lbl" htmlFor="p-new">Kata sandi baru</label>
           <input id="p-new" type="password" className="in" value={pw.password} onChange={setP('password')} autoComplete="new-password" minLength={8} required />

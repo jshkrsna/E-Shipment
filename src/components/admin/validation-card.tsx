@@ -115,8 +115,8 @@ export function ValidationCard({
   return (
     <section className="card relative flex flex-col gap-4" aria-label="Validasi laporan">
       <div>
-        <h2 className="text-[18px] font-bold">Validasi laporan</h2>
-        <p className="text-[12px] text-mut">Jawab dua pertanyaan. Pilihan berikutnya muncul sesuai jawaban.</p>
+        <h2 className="text-[18px] font-semibold">Validasi laporan</h2>
+        <p className="text-[13px] text-mut">Jawab dua pertanyaan. Pilihan berikutnya muncul sesuai jawaban.</p>
       </div>
       {status === 'BARU' && <Banner tone="wn" icon="lock"><p className="text-[13px]">Terima laporan terlebih dahulu untuk mulai memvalidasi.</p></Banner>}
 
@@ -130,7 +130,7 @@ export function ValidationCard({
           <fieldset className="flex flex-col gap-2" disabled={locked}>
             <legend className="mb-2 text-[13px] text-mut">Keputusan penggantian</legend>
             {(['asuransi', 'tanpa_asuransi'] as const).map((opt) => (
-              <label key={opt} className={cx('flex min-h-12 cursor-pointer items-center gap-3 rounded-r px-3', v.insurance === opt ? 'border-2 border-navy bg-nb-bg' : 'border border-line-d bg-white')}>
+              <label key={opt} className={cx('flex min-h-12 cursor-pointer items-center gap-3 rounded-r px-3', v.insurance === opt ? 'border border-navy bg-nb-bg/60 shadow-[inset_0_0_0_1px_var(--color-navy)]' : 'border border-line-d bg-white transition-colors hover:border-navy/50')}>
                 <input type="radio" name={`ins-${code}`} className="size-5 accent-navy" checked={v.insurance === opt} onChange={() => save({ ...v, insurance: opt, chargeRuleId: opt === 'tanpa_asuransi' ? (v.chargeRuleId ?? rules[0]?.id ?? null) : null })} />
                 {opt === 'asuransi' ? 'Pihak terkait mengganti dengan asuransi' : 'Pihak terkait tidak mengganti dengan asuransi'}
               </label>
@@ -164,7 +164,7 @@ export function ValidationCard({
                   <span>Total charge</span>
                   <b className="font-mono text-[22px]" aria-live="polite">{rupiah(charge ?? 0)}</b>
                 </div>
-                <p className="text-[12px] text-mut">Nilai barang {rupiah(itemValue)}. Persentase mengikuti ketentuan charge yang berlaku.</p>
+                <p className="text-[13px] text-mut">Nilai barang {rupiah(itemValue)}. Persentase mengikuti ketentuan charge yang berlaku.</p>
               </div>
             )}
           </fieldset>
@@ -181,7 +181,7 @@ export function ValidationCard({
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between gap-2">
               <span className="font-semibold">Pelacakan hingga paket ditemukan</span>
-              <span className="text-[12px] text-mut">{checked} dari {trace.length} lokasi diperiksa</span>
+              <span className="text-[13px] text-mut">{checked} dari {trace.length} lokasi diperiksa</span>
             </div>
             <ProgressBar value={trace.length ? (found ? 100 : (checked / trace.length) * 100) : 0} tone={found ? 'ok' : 'navy'} label="Progres pelacakan" />
             {found && (
@@ -241,9 +241,9 @@ export function ValidationCard({
 
       {/* Ringkasan */}
       <div className="flex flex-col gap-1">
-        <span className="up">Ringkasan keputusan</span>
+        <h3 className="text-[15px] font-semibold">Ringkasan keputusan</h3>
         {lines.map((l) => <p key={l}>{l}</p>)}
-        {decisionSentAt && <p className="text-[12px] font-semibold text-ok">Keputusan dikirim ke pelapor {fmtDateTime(decisionSentAt)}.</p>}
+        {decisionSentAt && <p className="text-[13px] font-semibold text-ok">Keputusan dikirim ke pelapor {fmtDateTime(decisionSentAt)}.</p>}
       </div>
       {error && <Banner tone="er" icon="alert" role="alert"><p className="text-[13px]">{error}</p></Banner>}
       {ok && <Banner tone="ok" icon="check" role="status"><p className="text-[13px]">{ok}</p></Banner>}
@@ -255,7 +255,7 @@ export function ValidationCard({
           <Button disabled={!complete || locked || busy !== null} onClick={() => setCloseOpen(true)}>Tutup laporan</Button>
         </div>
       )}
-      {busy === 'save' && <span className="absolute top-4 right-4 text-[12px] text-mut">Menyimpan…</span>}
+      {busy === 'save' && <span className="absolute top-4 right-4 text-[13px] text-mut">Menyimpan…</span>}
 
       <Modal open={closeOpen} onClose={() => setCloseOpen(false)} title="Tutup laporan?" variant="center">
         <form

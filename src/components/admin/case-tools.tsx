@@ -43,7 +43,7 @@ export function AdminCaseList({ items }: { items: ListItem[] }) {
                 <Chip tone={i.tone}>{i.statusLabel}</Chip>
               </div>
               <span className="font-semibold">{i.category}</span>
-              <span className="text-[12px] text-mut">
+              <span className="text-[13px] text-mut">
                 {i.reporter} · {fmtRelativeDay(i.createdAt)}
                 {i.escalated && <b className="ml-1 text-er">· Eskalasi</b>}
               </span>
@@ -80,7 +80,7 @@ export function AcceptButton({ code }: { code: string }) {
       >
         {busy ? 'Memproses…' : 'Terima laporan'}
       </Button>
-      {error && <p className="text-[12px] font-semibold text-er">{error}</p>}
+      {error && <p className="text-[13px] font-semibold text-er">{error}</p>}
     </div>
   )
 }
@@ -110,7 +110,7 @@ export function CaseControls({
   }
   return (
     <form onSubmit={save} className="card flex flex-col gap-3">
-      <h2 className="text-[16px] font-bold">Status kasus</h2>
+      <h2 className="text-[17px] font-semibold">Status kasus</h2>
       {status === 'BARU' && <p className="hint">Terima laporan terlebih dahulu.</p>}
       <div>
         <label className="lbl" htmlFor={`st-${code}`}>Status</label>
@@ -160,7 +160,7 @@ export function NotesForm({ code }: { code: string }) {
       <label htmlFor={`note-${code}`} className="sr-only">Catatan internal</label>
       <textarea id={`note-${code}`} rows={3} className="in" value={body} onChange={(e) => setBody(e.target.value)} placeholder="Contoh: minta rekaman foto pindai Padalarang." />
       <span className="hint">Hanya terlihat oleh tim admin.</span>
-      {error && <p className="text-[12px] font-semibold text-er">{error}</p>}
+      {error && <p className="text-[13px] font-semibold text-er">{error}</p>}
       <Button type="submit" variant="secondary" size="sm" className="self-start" disabled={!body.trim()}>Tambah catatan</Button>
     </form>
   )
@@ -174,7 +174,7 @@ export function CustomerMessage({ code, disabled }: { code: string; disabled: bo
   const [msg, setMsg] = useState<{ tone: 'ok' | 'er'; text: string } | null>(null)
   return (
     <div className="card flex flex-col gap-3">
-      <h2 className="text-[16px] font-bold">Pesan untuk pelanggan</h2>
+      <h2 className="text-[17px] font-semibold">Pesan untuk pelanggan</h2>
       <div className="flex flex-wrap gap-2">
         {MESSAGE_TEMPLATES.map((t, i) => (
           <button key={t.label} type="button" aria-pressed={tpl === i} onClick={() => { setTpl(i); setBody(t.text) }} className={cx('min-h-9 rounded-full border px-3 text-[13px] font-semibold', tpl === i ? 'border-navy bg-navy text-white' : 'border-line-d text-nu')}>

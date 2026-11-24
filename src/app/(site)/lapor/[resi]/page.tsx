@@ -8,6 +8,8 @@ import { Card } from '@/components/ui'
 import { getCurrentUser } from '@/server/services/auth'
 import { findShipment } from '@/server/services/shipments'
 import { getDb, schema as s } from '@/server/db/client'
+import { Reveal } from '@/components/reveal'
+import { WireMemo } from '@/components/wire/memo'
 
 export const metadata = { title: 'Laporkan masalah' }
 
@@ -25,8 +27,8 @@ export default async function LaporPage({ params }: { params: Promise<{ resi: st
     <div className="flex items-center gap-2">
       <Link href={`/lacak/${awb}`} className="grid size-11 place-items-center rounded-r text-navy hover:bg-nu-bg" aria-label="Kembali ke pelacakan"><Icon name="back" size={22} /></Link>
       <div className="flex flex-col">
-        <h1 className="text-[20px] font-extrabold md:text-[26px]">Laporkan masalah</h1>
-        <span className="font-mono text-[12px] text-mut">{awb}</span>
+        <h1 className="text-[26px] leading-tight font-semibold tracking-[-0.02em] text-navy-d md:text-[32px]">Laporkan masalah</h1>
+        <span className="font-mono text-[13px] text-mut">{awb}</span>
       </div>
     </div>
   )
@@ -34,6 +36,7 @@ export default async function LaporPage({ params }: { params: Promise<{ resi: st
   if (shipment.ownerId !== user.id) {
     return (
       <div className="wx flex max-w-[640px] flex-col gap-5 py-6 lg:py-10">
+        <WireMemo shape={{ owner: 0 }} />
         {header}
         <Card className="flex flex-col gap-3">
           <p className="font-semibold">Klaim paket ini sebagai penerima terlebih dahulu.</p>
@@ -53,20 +56,22 @@ export default async function LaporPage({ params }: { params: Promise<{ resi: st
   ]
 
   return (
-    <div className="wx grid max-w-[1100px] gap-6 py-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:py-10">
-      <div className="flex min-w-0 flex-col gap-5">
-        {header}
-        <ReportForm awb={awb} evidence={items} />
+    <Reveal>
+      <WireMemo shape={{ owner: 1, evidence: items.length }} />
+      <div className="wx grid max-w-[1100px] gap-6 py-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:py-10">
+        <div className="flex min-w-0 flex-col gap-5">
+          {header}
+          <ReportForm awb={awb} evidence={items} />
+        </div>
+        <aside className="hidden flex-col gap-3 lg:flex lg:pt-16">
+          <Card className="flex flex-col gap-2">
+            <p className="font-mono text-[17px] font-medium text-navy">{awb}</p>
+            <p className="text-[13px] text-mut">{shipment.origin} ke {shipment.destination}, {shipment.status.toLowerCase()}</p>
+            <Link className="lnk text-[13px]" href={`/lacak/${awb}/bukti`}>Tambah bukti di brankas</Link>
+          </Card>
+          <p className="note">Setelah dikirim, kasus muncul di panel admin ekspedisi dengan status Baru. Anda dapat memantau dan membalas di halaman kasus.</p>
+        </aside>
       </div>
-      <aside className="hidden flex-col gap-3 lg:flex lg:pt-16">
-        <Card className="flex flex-col gap-2">
-          <span className="up">Paket</span>
-          <p className="font-mono font-semibold">{awb}</p>
-          <p className="text-[13px] text-mut">{shipment.origin} → {shipment.destination} · {shipment.status}</p>
-          <Link className="lnk text-[13px]" href={`/lacak/${awb}/bukti`}>Tambah bukti di brankas</Link>
-        </Card>
-        <p className="note">Setelah dikirim, kasus muncul di panel admin ekspedisi dengan status Baru. Anda dapat memantau dan membalas di halaman kasus.</p>
-      </aside>
-    </div>
+    </Reveal>
   )
 }
